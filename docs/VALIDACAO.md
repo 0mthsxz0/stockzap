@@ -56,3 +56,19 @@ Os pedidos de privacidade são uma fila persistida com protocolo; exigem acompan
 ## Limpeza dos testes
 
 As três contas fictícias, quatro empresas de teste e seus protocolos/estados foram removidos após a validação. A consulta final confirmou zero contas, empresas e pedidos de teste remanescentes, mantendo os sete perfis que já existiam antes do trabalho.
+
+## Revisão da experiência e correções de acesso
+
+A revisão reproduziu dois erros de inicialização: o SDK local só existia em `dist/`, causando falha no login servido pelo Live Server; e o CORS recusava o alias exato da prévia e a porta 5500 com HTTP 403. O SDK gerado agora é versionado no código e regenerado pelo build. Somente os endereços exatos necessários foram adicionados à API, publicada como versão 6. A mesma negociação de acesso que retornava 403 passou a responder 204; origens não reconhecidas continuam recusadas e as operações continuam exigindo autenticação.
+
+Também foi reproduzido no Chromium um formulário da demo com o botão de salvar fora da área visível após ampliar/reduzir o painel. O documento isolado agora sinaliza a abertura de formulário para a landing alinhar a área de trabalho, sem expor o armazenamento da conta. O teste usa cliques reais nos formulários em desktop e celular.
+
+A demonstração tem documento público próprio, sem SDK de autenticação, confirmação de prontidão, indicador de carregamento, tempo limite e nova tentativa. A venda guiada executa `order.create` nas mesmas regras da API: gera pedido, baixa estoque e cria receita. Os resultados são enviados para a landing somente pela janela ativa da demo e com origem isolada. A navegação, ampliação, reinício e consultas ao ZapCare foram verificados.
+
+A landing e a área interna usam os mesmos tokens azul/verde. A proposta de valor se organiza por vender sem retrabalho, identificar reposições e entender o dinheiro. Os seletores funcionam por clique e teclado. Animações respeitam `prefers-reduced-motion`. Novas contas recebem primeiros passos com ações para cadastrar produto, registrar venda e consultar financeiro.
+
+Validação desta revisão: 23 testes Node aprovados e `npm run test:e2e` aprovado no Chromium 153, com venda guiada e resultado no estoque/financeiro, produto com HTML exibido como texto, formulários no desktop e celular, resposta atualizada do ZapCare, isolamento da sessão, seis larguras (320, 375, 768, 1024, 1440 e 1920), reinício, recuperação após bloqueio de carregamento e movimento reduzido. Build/check verificam 26 páginas. Nenhuma chamada à nuvem foi feita pela demo.
+
+Novo teste contra Auth/API reais na porta 5500: cadastro, empresa vazia, primeiros passos, produto, venda, baixa de estoque, persistência após recarga, logout e login por senha com verificação da API antes do redirecionamento. Sem erros de JavaScript observados. Conta e empresa fictícias foram removidas; consulta final confirmou zero remanescentes e os sete perfis anteriores preservados. Entrega/abertura de e-mail de recuperação continua fora da verificação.
+
+O site público `stockzap.vercel.app` ainda servia o código da branch principal anterior na inspeção. O PR #1 permanece o ponto de integração do frontend. A prévia Vercel exige autenticação, e a conexão Vercel deste ambiente não tem acesso àquele projeto; não se afirma teste de navegador nessa hospedagem protegida.

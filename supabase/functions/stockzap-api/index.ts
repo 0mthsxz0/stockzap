@@ -1,6 +1,6 @@
 import {createService,HttpError} from './service.mjs';
 const env={SUPABASE_URL:Deno.env.get('SUPABASE_URL'),SUPABASE_ANON_KEY:Deno.env.get('SUPABASE_ANON_KEY'),SUPABASE_SERVICE_ROLE_KEY:Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')};
-const origins=new Set(['https://stockzap.vercel.app','http://localhost:3000','http://127.0.0.1:3000','http://localhost:4173','http://127.0.0.1:4173']);
+const origins=new Set(['https://stockzap.vercel.app','http://localhost:3000','http://127.0.0.1:3000','http://localhost:4173','http://127.0.0.1:4173','http://localhost:5500','http://127.0.0.1:5500','https://stockzap-git-feature-lan-162467-matheusmjcandian-1663s-projects.vercel.app']);
 Deno.serve(async(req:Request)=>{
   const origin=req.headers.get('origin');
   const headers={'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Vary':'Origin','Access-Control-Allow-Headers':'authorization, apikey, content-type, x-client-info','Access-Control-Allow-Methods':'GET, POST, OPTIONS',...(origin&&origins.has(origin)?{'Access-Control-Allow-Origin':origin}:{})};

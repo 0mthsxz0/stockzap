@@ -14,7 +14,7 @@
       const c=A.client(),kind=form.dataset.authForm;
       if(kind==='login'){
         const {error}=await c.auth.signInWithPassword({email:values.email.trim(),password:values.senha});if(error)throw error;
-        form.reset();location.replace('/app.html');
+        button.textContent='Abrindo seu espaço…';await A.user();await A.request('legal-status');form.reset();location.replace('/app.html');
       }else if(kind==='cadastro'){
         if(values.senha.length<12||values.senha.length>128)throw new Error('Use uma senha entre 12 e 128 caracteres.');
         const {data,error}=await c.auth.signUp({email:values.email.trim(),password:values.senha,options:{emailRedirectTo:callback(),data:{nome:values.nome.trim(),empresa:values.empresa.trim(),terms_version:A.version}}});

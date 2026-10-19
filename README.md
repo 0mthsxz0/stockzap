@@ -19,12 +19,14 @@ npm.cmd run build
 npm.cmd run check
 ```
 
+O SDK de autenticação também está versionado em `js/supabase-vendor.js`, para que a inicialização não falhe ao abrir o código pelo Live Server (porta 5500). O build regenera esse arquivo a partir da versão fixada no `package-lock.json`; não o edite manualmente. Para publicar, use sempre o build.
+
 O build produz `dist/`. Apenas esse diretório deve ser publicado. A configuração de Vercel já define build, saída e cabeçalhos de segurança. Não publique a raiz inteira: ela preserva o histórico da antiga demonstração e os fontes do backend.
 
 ## Experiência
 
 - `/`: landing page com benefícios, recursos, demonstração navegável, ZapCare, perguntas frequentes e informações de privacidade.
-- A demonstração roda em um iframe com origem isolada e dados fictícios em memória. Ela não acessa a sessão, não consulta contas reais e não envia os dados fictícios ao banco.
+- A demonstração carrega `/demo.html` em um iframe com origem isolada e dados fictícios em memória. O documento da demo não carrega o SDK de autenticação. A landing oferece venda guiada com efeitos reais nas regras compartilhadas, navegação entre módulos, reinício, ampliação e recuperação de falha de carregamento. Ela não acessa a sessão, não consulta contas reais e não envia os dados fictícios ao banco.
 - `/cadastro.html` e `/login.html`: Supabase Auth, confirmação de e-mail quando exigida pelo provedor, mensagens genéricas e recuperação de senha.
 - `/auth/callback.html`: retorno PKCE. Abra os links no mesmo navegador utilizado para iniciar o cadastro ou recuperação.
 - `/app.html`: valida a sessão e abre a empresa vinculada à conta. Sem vínculo prévio, a API existente cria uma empresa vazia. Não importa os registros fictícios.
@@ -38,7 +40,7 @@ O projeto existente é `xvbryihihhzehebchuqc`, e a API é `stockzap-api`. O nave
 
 Os fontes da API existente foram trazidos para `supabase/functions/stockzap-api/`, com a extensão aditiva para privacidade e aceite versionado. A migração está em `supabase/migrations/`. As tabelas de empresas e operações preexistentes foram preservadas.
 
-A API aceita as origens `https://stockzap.vercel.app`, `http://localhost:3000`, `http://127.0.0.1:3000`, `http://localhost:4173` e `http://127.0.0.1:4173`. Para outro domínio, revise a lista em `index.ts` e republique a função. **Não libere todas as origens.**
+A API aceita as origens `https://stockzap.vercel.app`, `http://localhost:3000`, `http://127.0.0.1:3000`, `http://localhost:4173` e `http://127.0.0.1:4173`, `http://localhost:5500`, `http://127.0.0.1:5500` e o alias exato da prévia `https://stockzap-git-feature-lan-162467-matheusmjcandian-1663s-projects.vercel.app`. Para outro domínio, revise a lista em `index.ts` e republique a função. **Não libere todas as origens.**
 
 No painel Supabase → Authentication → URL Configuration, configure a Site URL e permita os retornos exatos usados pelo cadastro e recuperação:
 
@@ -57,3 +59,16 @@ As solicitações de privacidade são registradas para análise: não excluem au
 Arquivos de código e documentação usam CRLF para facilitar o trabalho no Windows.
 
 As regras compartilhadas do navegador são geradas a partir dos módulos da API: depois de alterar `core.mjs` ou `zapcare.mjs`, execute `npm.cmd run sync-core`. O build também faz essa geração. O teste de paridade impede diferenças silenciosas entre a demonstração e o servidor. Veja os resultados em [validação](docs/VALIDACAO.md).
+
+## Teste de navegador reproduzível
+
+Com o servidor local parado:
+
+```powershell
+npx.cmd playwright install chromium
+npm.cmd run test:e2e
+```
+
+O teste inicia e encerra o servidor, abre o Chromium e verifica venda guiada com baixa de estoque e receita, formulários no desktop e celular, ZapCare atualizado, isolamento da sessão, navegação por teclado, seis larguras, reinício, recuperação após falha de carregamento e movimento reduzido. Não cria contas nem envia dados ao Supabase. Para usar um Chromium já instalado, defina `CHROMIUM_EXECUTABLE_PATH`.
+
+A correção de CORS da prévia e da porta 5500 já está na versão 6 da função conectada. A publicação do frontend continua vinculada à integração do PR; o domínio de produção não recebe automaticamente alterações de uma branch de prévia.

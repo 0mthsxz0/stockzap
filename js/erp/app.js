@@ -1,8 +1,9 @@
 (function(){
   'use strict';
   const C=window.SZCore,U=window.SZUI,V=window.SZViews,{esc:e,icon:i,date:d,badge:b,statusBadge:sb,initials}=U,money=C.money;
-  const routes=[['dashboard','Visão geral','dashboard'],['produtos','Produtos','box'],['estoque','Estoque','inventory'],['pedidos','Pedidos','orders'],['financeiro','Financeiro','finance'],['prazos','Prazos','calendar'],['equipe','Equipe','users'],...(new URLSearchParams(location.search).get('demo')==='1'?[['whatsapp','WhatsApp (simulado)','chat']]:[]),['zapcare','ZapCare','spark']];
-  const A=window.StockZapAuth,demo=new URLSearchParams(location.search).get('demo')==='1'&&window.parent!==window;
+  const demo=document.body.dataset.demo==='true'||(new URLSearchParams(location.search).get('demo')==='1'&&window.parent!==window);
+  const routes=[['dashboard','Visão geral','dashboard'],['produtos','Produtos','box'],['estoque','Estoque','inventory'],['pedidos','Pedidos','orders'],['financeiro','Financeiro','finance'],['prazos','Prazos','calendar'],['equipe','Equipe','users'],...(demo?[['whatsapp','WhatsApp (simulado)','chat']]:[]),['zapcare','ZapCare','spark']];
+  const A=window.StockZapAuth;
   if(new URLSearchParams(location.search).get('demo')==='1'&&!demo){location.replace('/#demo');return;}
   let companyId='',role='owner',account=null,profile=null;
   let state,mode=demo?'demo':'cloud',aiEnabled=false,saving=false,filters={},page=1,period='month',stockTab='products',settingsTab='company',wa='w0',route='',theme='light',messages=[],chatOpen=false,chatBusy=false,chatDraft='';
@@ -40,6 +41,28 @@
       app.innerHTML=`<main class="error-page"><section><h1>Não foi possível abrir seu espaço</h1><p>${e(error.message)}</p><button class="btn btn-primary" data-act="reload">Tentar novamente</button><a class="btn btn-secondary" href="/">Voltar ao início</a></section></main>`;
     }
   }
+  function publishDemo(type='stockzap:demo-ready',extra={}){
+    if(!demo||window.parent===window||!state)return;
+    const m=C.summary(state),product=state.products.find(p=>p.sku==='CAF-001'&&!p.archived);
+    window.parent.postMessage({type,route,summary:{sales:m.sales,stockUnits:m.stockUnits,productCount:m.productCount,low:m.low.length,balance:m.balance,orders:m.orderCount,payables:m.payables,daily:m.daily},product:product?{name:product.name,stock:product.stock,price:product.price}:null,...extra},location.origin);
+  }
+  if(demo)window.addEventListener('message',async event=>{
+    if(event.source!==window.parent||event.origin!==location.origin||event.data?.type!=='stockzap:demo-command'||!state)return;
+    const command=event.data.command;
+    try{
+      if(command==='navigate'&&routes.some(r=>r[0]===event.data.route)){
+        closeModal();chatOpen=false;route=event.data.route;filters={};page=1;history.replaceState(null,'','#'+route);render();window.scrollTo({top:0});
+      }else if(command==='sale'){
+        if(modalRoot.firstChild||saving||chatBusy)throw new Error('Conclua a ação aberta antes de simular a venda.');
+        const p=state.products.find(p=>p.sku==='CAF-001'&&!p.archived);if(!p||p.stock<1)throw new Error('O café ficou sem estoque. Registre uma entrada ou reinicie a demo.');
+        const before=p.stock;route='pedidos';filters={};page=1;
+        await perform('order.create',{customerId:state.customers[0].id,channel:'Balcão',paymentMethod:'Pix',paymentStatus:'Pago',dueDate:state.asOf,items:[{productId:p.id,quantity:1}],notes:'Venda de demonstração guiada'},{message:'Venda registrada. Estoque e financeiro atualizados.'});
+        publishDemo('stockzap:demo-effect',{effect:{product:p.name,before,after:before-1,amount:p.price,order:state.orders[0].number}});
+      }else if(command==='ask'){
+        closeModal();route='zapcare';filters={};render();await sendChat('O que preciso repor?');
+      }
+    }catch(error){publishDemo('stockzap:demo-error',{message:error.message});}
+  });
   const readRoute=()=>{const value=location.hash.slice(1).split('?')[0];return [...routes.map(r=>r[0]),'configuracoes'].includes(value)?value:'dashboard';};
   const context=()=>({state,route,filters,page,period,stockTab,settingsTab,wa,theme,mode,aiEnabled,demo,role,profile});
   function render(){
@@ -48,6 +71,7 @@
     const name=demo?state.company.owner:(profile?.name||state.company.owner),notices=C.alerts(state).length;
     app.innerHTML=`<div class="sidebar-scrim" data-act="menu-close"></div><aside class="sidebar" aria-label="Menu principal"><div class="sidebar-brand"><a href="#dashboard" aria-label="StockZap, visão geral"><img class="logo" src="imagens/StockZap_logo.svg" alt="StockZap"></a><button class="icon-btn sidebar-close" data-act="menu-close" aria-label="Fechar menu">${i('close')}</button></div><div class="workspace"><span class="avatar">${initials(state.company.name)}</span><div><strong>${e(state.company.name)}</strong><small>Seu espaço de gestão</small></div></div><div class="nav-label">SEU NEGÓCIO</div><nav>${routes.map(([id,label,icon])=>`<a class="nav-item ${route===id?'active':''}" href="#${id}" ${route===id?'aria-current="page"':''}>${i(icon)}<span>${label}</span>${id==='pedidos'&&C.summary(state).activeOrders.length?'<span class="nav-count">'+C.summary(state).activeOrders.length+'</span>':id==='whatsapp'&&state.conversations.some(c=>c.unread)?'<span class="nav-count">'+state.conversations.filter(c=>c.unread).length+'</span>':''}${id==='zapcare'?'<span class="nav-count" style="color:var(--green-dark)">AI</span>':''}</a>`).join('')}</nav><div class="sidebar-bottom"><div class="care-promo"><strong>${i('spark')}Um próximo passo mais claro</strong><p>Converse com os dados do seu negócio.</p><button class="btn" data-act="care-open">Abrir ZapCare ${i('arrow')}</button></div><a class="nav-item ${route==='configuracoes'?'active':''}" href="#configuracoes">${i('settings')}Configurações</a><button class="nav-item" data-act="logout">${i('logout')}${demo?'Fechar demonstração':'Sair da conta'}</button><div class="sidebar-foot">STOCKZAP · ${demo?'DEMONSTRAÇÃO':'SEU NEGÓCIO CONECTADO'}</div></div></aside><div class="app-main"><header class="topbar"><div class="topbar-title"><button class="icon-btn mobile-menu" data-act="menu-open" aria-label="Abrir menu" aria-expanded="false">${i('menu')}</button><span class="breadcrumb-company">${e(state.company.name)}</span><span class="breadcrumb-company">/</span><strong>${title}</strong></div><div class="topbar-right"><span class="demo-pill"><i class="dot"></i>${demo?'Demonstração':'Salvo na nuvem'}</span><button class="top-search" data-act="search" aria-label="Buscar no negócio">${i('search')}<span>Buscar no negócio…</span><kbd>Ctrl K</kbd></button><button class="icon-btn ${notices?'bell':''}" data-act="notifications" aria-label="Notificações, ${notices} alertas">${i('bell')}</button><a class="profile-link" href="#configuracoes" aria-label="Perfil de ${e(name)}"><span class="avatar">${initials(name)}</span><div><strong>${e(name)}</strong><small>${demo?'Proprietária':({owner:'Proprietário(a)',admin:'Administrador(a)',operator:'Operador(a)',viewer:'Consulta'}[role]||'Conta')}</small></div></a></div></header><main class="app-content" id="page-content" tabindex="-1"></main></div>`;
     renderContent();renderDock();
+    if(demo)publishDemo();
   }
   function renderContent(){
     const active=document.activeElement,filter=active?.dataset?.filter,position=active?.selectionStart;
@@ -70,7 +94,7 @@
     }finally{saving=false;}
   }
   function modal(title,body,wide=false){
-    captureDraft();modalRoot.innerHTML=`<div class="overlay" id="modal-overlay"><section class="modal ${wide?'wide':''}" role="dialog" aria-modal="true" aria-labelledby="modal-title"><header class="modal-head"><h2 id="modal-title">${title}</h2><button class="icon-btn" data-act="modal-close" aria-label="Fechar janela">${i('close')}</button></header><div class="modal-body">${body}</div></section></div>`;document.body.classList.add('body-locked');setTimeout(()=>modalRoot.querySelector('input,select,textarea,button[data-act]:not([data-act="modal-close"])')?.focus(),30);
+    captureDraft();if(demo)publishDemo('stockzap:demo-focus');modalRoot.innerHTML=`<div class="overlay" id="modal-overlay"><section class="modal ${wide?'wide':''}" role="dialog" aria-modal="true" aria-labelledby="modal-title"><header class="modal-head"><h2 id="modal-title">${title}</h2><button class="icon-btn" data-act="modal-close" aria-label="Fechar janela">${i('close')}</button></header><div class="modal-body">${body}</div></section></div>`;document.body.classList.add('body-locked');setTimeout(()=>modalRoot.querySelector('input,select,textarea,button[data-act]:not([data-act="modal-close"])')?.focus(),30);
   }
   let beforeModal=null;
   function openModal(title,body,wide=false){beforeModal=document.activeElement;modal(title,body,wide);}
@@ -188,7 +212,7 @@
     event.preventDefault();
     try{
       if(action==='reload')return location.reload();
-      if(action==='logout'){if(demo){window.parent.postMessage({type:'stockzap:demo-exit'},'*');return;}return await A.logout();}
+      if(action==='logout'){if(demo){if(window.parent===window)location.replace('/#demo');else window.parent.postMessage({type:'stockzap:demo-exit'},location.origin);return;}return await A.logout();}
       if(action==='menu-open'){document.querySelector('.sidebar').classList.add('open');document.querySelector('.sidebar-scrim').classList.add('open');el.setAttribute('aria-expanded','true');return;}
       if(action==='menu-close'){document.querySelector('.sidebar')?.classList.remove('open');document.querySelector('.sidebar-scrim')?.classList.remove('open');document.querySelector('[data-act="menu-open"]')?.setAttribute('aria-expanded','false');return;}
       if(action==='modal-close')return closeModal();
@@ -285,7 +309,7 @@
   });
   document.addEventListener('keydown',event=>{
     if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='k'){event.preventDefault();if(state)searchModal();return;}
-    if(event.key==='Escape'){if(modalRoot.firstChild)closeModal();else if(chatOpen){captureDraft();chatOpen=false;renderDock();}else document.querySelector('[data-act="menu-close"]')?.click();}
+    if(event.key==='Escape'){if(demo&&!modalRoot.firstChild&&!chatOpen)publishDemo('stockzap:demo-escape');if(modalRoot.firstChild)closeModal();else if(chatOpen){captureDraft();chatOpen=false;renderDock();}else document.querySelector('[data-act="menu-close"]')?.click();}
     if(event.key==='Enter'&&!event.shiftKey&&event.target.matches('[data-care-input]')){event.preventDefault();sendChat(event.target.value);}
     if(event.key==='Tab'&&modalRoot.firstChild){const focusable=Array.from(modalRoot.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select,textarea')).filter(x=>x.offsetParent);const first=focusable[0],last=focusable.at(-1);if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}}
   });
@@ -296,9 +320,9 @@
     if(event.key==='stockzap:theme'){theme=event.newValue||'light';U.applyTheme(theme);renderContent();}
   });
   if(!demo){
-    A.client().auth.onAuthStateChange((event,session)=>{
+    try{A.client().auth.onAuthStateChange((event,session)=>{
       if(event==='SIGNED_OUT'||(account&&session?.user&&session.user.id!==account.id)){state=null;messages=[];app.replaceChildren();location.replace('/login.html');}
-    });
+    });}catch{}
     window.addEventListener('pageshow',event=>{if(event.persisted){app.replaceChildren();location.reload();}});
   }
   setInterval(refresh,15000);matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(theme==='system')U.applyTheme('system');});

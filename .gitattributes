@@ -8,3 +8,7 @@
 *.json text eol=crlf
 *.md text eol=crlf
 *.sql text eol=crlf
+
+# Generated SDK contains whitespace inside template literals; preserve upstream bytes.
+js/supabase-vendor.js -whitespace linguist-generated
+js/supabase-vendor.LICENSE.txt text eol=crlf
