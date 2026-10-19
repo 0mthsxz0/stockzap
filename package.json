@@ -1,0 +1,17 @@
+{
+  "name": "stockzap",
+  "version": "2.0.0",
+  "private": true,
+  "description": "StockZap: landing page, demonstração e gestão conectada ao Supabase",
+  "engines": {"node": ">=24"},
+  "scripts": {
+    "dev": "node scripts/dev.cjs",
+    "start": "node scripts/dev.cjs",
+    "build": "node scripts/build.cjs",
+    "sync-core": "node scripts/sync-core.cjs",
+    "test": "node --test tests/*.test.cjs tests/*.test.mjs",
+    "check": "node scripts/check.cjs"
+  },
+  "dependencies": {"@supabase/supabase-js": "2.118.0"},
+  "devDependencies": {"esbuild": "0.28.2"}
+}
