@@ -12,7 +12,7 @@ Esta revisão cobre o código e as configurações que puderam ser observadas. N
 - Dados pessoais do chat ficam em memória na sessão da página. O estado real do negócio não é salvo no localStorage pela nova aplicação.
 - Demonstração isolada com sandbox, sem origem compartilhada, tokens ou acesso ao armazenamento da conta real.
 - SDK empacotado localmente, dependências diretas fixadas e lockfile; sem scripts/fontes de terceiros ou analytics.
-- CSP sem scripts inline, proteção contra enquadramento externo, no-referrer, nosniff, restrições de permissões e no-store.
+- CSP sem scripts inline na landing e na área real. A demo é um documento empacotado isolado: seu cabeçalho admite o pacote inline e uma segunda CSP por hash permite apenas o script gerado, com `connect-src none`. Proteção contra enquadramento externo, no-referrer, nosniff, restrições de permissões e no-store permanecem.
 - Saída escapada na interface; nomes e descrições são texto, sem execução de HTML. Exportações CSV neutralizam fórmulas iniciadas por = + - @.
 - Aceite dos termos versionado com horário do banco, separado de autorização de marketing. Não existe coleta de consentimento para finalidades genéricas.
 - Exportação pessoal, correção do perfil e solicitação de direitos com protocolo. Tabelas de solicitações e aceites têm RLS, leitura limitada à própria conta e escrita reservada ao serviço.
@@ -42,3 +42,11 @@ Uma exclusão precisa avaliar vínculos com empresas, obrigações legais e dado
 - RLS: https://supabase.com/docs/guides/database/postgres/row-level-security
 
 Os resultados da validação desta entrega estão em `VALIDACAO.md`.
+
+## Atualização de portabilidade
+
+A API versão 7 restringe origens ao domínio de produção, às prévias da StockZap na conta atual da Vercel, a loopback e à lista explícita `STOCKZAP_ALLOWED_ORIGINS`. Domínios de outras contas e nomes parecidos são rejeitados. O único endpoint com CORS público é `health`, que não revela dados de conta ou credenciais; ele informa a disponibilidade e se a origem é permitida. Não se usa autenticação por cookies na API. JWT, vínculo, papéis e RLS continuam sendo exigidos em cada operação protegida.
+
+A verificação de sessão preserva erros de rede como indisponibilidade, em vez de tratá-los como senha incorreta ou sessão expirada. Cadastro e login verificam a disponibilidade da API antes de enviar a operação. A criação da conta não depende de um segundo envio de aceite no formulário: o fluxo autenticado registra o aceite versionado antes de abrir a empresa.
+
+O advisor permanece com o aviso de proteção contra senhas comprometidas desabilitada. Remediação: https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection . Não foi alterada a configuração do provedor de confirmação/e-mail.

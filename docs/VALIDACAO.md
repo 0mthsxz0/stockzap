@@ -2,7 +2,7 @@
 
 ## Resultado
 
-- `npm test`: **20 testes aprovados**. Regras financeiras e de estoque, validade dos dados, autorização, limitação de chamadas, privacidade e concorrência de edição.
+- `npm test`: **27 testes aprovados**. Regras financeiras e de estoque, validade dos dados, autorização, limitação de chamadas, privacidade e concorrência de edição.
 - `npm run build` e `npm run check`: build estático, sintaxe, referências locais, exclusão dos fontes privilegiados e 25 páginas verificados.
 - `npm audit --omit=dev --audit-level=moderate`: **zero vulnerabilidades reportadas** no conjunto de dependências de produção na execução desta entrega.
 
@@ -72,3 +72,21 @@ Validação desta revisão: 23 testes Node aprovados e `npm run test:e2e` aprova
 Novo teste contra Auth/API reais na porta 5500: cadastro, empresa vazia, primeiros passos, produto, venda, baixa de estoque, persistência após recarga, logout e login por senha com verificação da API antes do redirecionamento. Sem erros de JavaScript observados. Conta e empresa fictícias foram removidas; consulta final confirmou zero remanescentes e os sete perfis anteriores preservados. Entrega/abertura de e-mail de recuperação continua fora da verificação.
 
 O site público `stockzap.vercel.app` ainda servia o código da branch principal anterior na inspeção. O PR #1 permanece o ponto de integração do frontend. A prévia Vercel exige autenticação, e a conexão Vercel deste ambiente não tem acesso àquele projeto; não se afirma teste de navegador nessa hospedagem protegida.
+
+## Correção do carregamento em prévia protegida
+
+Foi reproduzida a falha que o teste local anterior não cobria: o iframe com sandbox e origem opaca carregava o documento, mas os pedidos de CSS, JS e logo eram enviados como `cross-site`, sem o cookie `SameSite=Lax` da proteção de prévia. O servidor os redirecionava para a tela de autenticação, e a demo terminava por timeout. `tests/preview.e2e.cjs` falhou nesse cenário antes da correção e aprovou depois.
+
+O build agora gera uma demo autocontida, com estilo, logo e um único bundle inline validado por hash CSP. A sandbox continua sem compartilhar origem ou armazenamento. Verificado em `/` e `/stockzap/`, numa porta aleatória, com a barreira de autenticação ativa: venda guiada concluída, estoque de 6 para 5, nenhuma requisição de recurso externo da demo, nenhuma requisição ao Supabase pela demo e script injetado bloqueado pela CSP.
+
+Os links, recursos, redirecionamentos e callbacks deixaram de depender da raiz do domínio. `js/site.js` deriva a base pelo endereço do próprio script. `js/config.js` reúne apenas configuração pública. Cadastro/login têm checagem de disponibilidade, limites de espera e mensagens que distinguem credenciais incorretas, confirmação, rede e bloqueio de armazenamento. Erros de rede ao verificar usuário não encerram a sessão como se fosse inválida.
+
+A função `stockzap-api` versão 7 está ativa. Validação HTTP real: preflight de `localhost:5173` e de outra prévia dentro do namespace da StockZap respondeu 204 com a origem exata; um domínio de outra conta respondeu 403 sem CORS; operação sem token respondeu 401. A liberação global dos endpoints de dados foi rejeitada na revisão automática e não foi aplicada. A alternativa aprovada preserva o escopo do projeto, permite portas locais e aceita uma lista explícita para novos domínios.
+
+Um novo teste de navegador, com Auth/API reais encaminhados pelo proxy HTTP permitido, percorreu cadastro, aceite, empresa vazia, criação de produto, venda, baixa de estoque, persistência após recarga, logout, feedback de credenciais incorretas e novo login, em uma subpasta e com barreira de prévia. Não houve erros de JavaScript. A conta, as sessões e a empresa fictícias foram removidas; consulta final confirmou zero registros de teste remanescentes e sete perfis anteriores preservados. Nenhuma credencial foi gravada no relatório.
+
+Checks atuais: 27 testes Node; `npm run build`; `npm run check` em 26 páginas; `npm run test:e2e`; `npm run test:preview`. A suíte anterior da demo continua cobrindo seis larguras, formulários desktop/celular, ZapCare, teclado, recuperação e movimento reduzido.
+
+Limites: o navegador remoto chegou ao login da Vercel, e o conector respondeu 403 para a equipe proprietária do projeto. O teste na própria prévia protegida exige uma sessão autorizada. Não se deve confundir a simulação fiel de proteção local com teste já concluído na Vercel. A tentativa de conexão nativa do Chromium local ao Supabase encontrou o certificado do proxy do ambiente; a validação TLS não foi desabilitada. Por isso o teste de UI com dados reais usa encaminhamento HTTP pelo proxy autorizado e é complementado pela verificação HTTP dos cabeçalhos CORS reais.
+
+Autenticação não é suportada por `file://`; use HTTP/HTTPS. Entrega de e-mails de confirmação/recuperação, outros motores de navegador e a revisão organizacional da LGPD permanecem fora dos fluxos verificados.

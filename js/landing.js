@@ -37,9 +37,13 @@
     errorMessage(error.message);
   }
   function launch(){
+    if(!/^https?:$/.test(location.protocol)){
+      const message='A demonstração integrada precisa de HTTP ou HTTPS. Abra pelo Live Server ou execute npm run dev.';
+      stage.innerHTML='<div class="demo-cover" role="alert"><h3>Abra a StockZap pelo servidor.</h3><p>Use o Live Server do VSCode ou execute <strong>npm run dev</strong> na pasta do projeto e abra o endereço exibido.</p></div>';return Promise.reject(new Error(message));
+    }
     clearTimeout(loadTimer);finishAction();ready=false;
     readiness=new Promise((resolve,reject)=>{resolveReady=resolve;rejectReady=reject;});
-    const iframe=document.createElement('iframe');iframe.src='/demo.html';iframe.title='Demonstração interativa StockZap com dados fictícios';
+    const iframe=document.createElement('iframe');iframe.src=window.StockZapSite.url('demo.html');iframe.title='Demonstração interativa StockZap com dados fictícios';
     // Opaque origin isolates the demo from account cookies and browser storage.
     iframe.setAttribute('sandbox','allow-scripts allow-forms allow-downloads');iframe.setAttribute('referrerpolicy','no-referrer');
     const loading=document.createElement('div');loading.className='demo-loading';loading.setAttribute('role','status');loading.innerHTML='<span class="loading-ring" aria-hidden="true"></span><strong>Preparando seu espaço para testar…</strong><span>Produtos, vendas e financeiro conectados.</span>';
@@ -87,7 +91,7 @@
     else if(data.type==='stockzap:demo-escape'&&demoWindow.classList.contains('expanded'))exitExpanded();
     else if(data.type==='stockzap:demo-exit'){
       clearTimeout(loadTimer);finishAction();frame=null;ready=false;restart.hidden=true;fullscreen.hidden=true;if(demoWindow.classList.contains('expanded'))exitExpanded();
-      stage.innerHTML='<div class="demo-cover"><h3>Seu negócio pode ser o próximo.</h3><p>Crie seu espaço ou continue explorando a empresa fictícia.</p><a class="button primary" href="/cadastro.html">Criar minha conta ↗</a><button class="text-link" type="button" data-demo-retry>Continuar explorando ↗</button></div>';feedback.textContent='Demonstração encerrada. Suas alterações fictícias foram descartadas.';
+      stage.innerHTML='<div class="demo-cover"><h3>Seu negócio pode ser o próximo.</h3><p>Crie seu espaço ou continue explorando a empresa fictícia.</p><a class="button primary" href="'+window.StockZapSite.url('cadastro.html')+'">Criar minha conta ↗</a><button class="text-link" type="button" data-demo-retry>Continuar explorando ↗</button></div>';feedback.textContent='Demonstração encerrada. Suas alterações fictícias foram descartadas.';
     }
   });
   if('IntersectionObserver' in window){
