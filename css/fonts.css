@@ -1,0 +1,2 @@
+/* Local font stack: no third-party font requests or tracking. */
+@font-face{font-family:'StockZap Sans';src:local('Inter'),local('Segoe UI');font-style:normal;font-weight:100 900;font-display:swap}

@@ -17,3 +17,8 @@ Thumbs.db
 # Arquivos compactados
 *.zip
 *.rar
+node_modules/
+dist/
+.vercel/
+test-results/
+playwright-report/
