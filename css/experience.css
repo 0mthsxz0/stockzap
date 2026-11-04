@@ -19,3 +19,23 @@
 @media(max-width:700px){.demo-bottom a{margin-left:0;width:auto}.demo-stage{scroll-margin-top:86px}.demo-toolbar>div:first-child{min-width:0}.demo-toolbar strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.demo-tools{flex-shrink:0}}
 @media(max-width:700px){.hero:before{right:0}.preview-metrics{grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:7px}.preview-metrics>div{padding:12px 9px;min-width:0}.preview-metrics strong{font-size:clamp(16px,5.5vw,22px);white-space:nowrap;letter-spacing:-.6px}.preview-metrics span{font-size:8px}.preview-metrics small{font-size:6px}.preview-body{padding:12px}.value-tabs button{min-width:0}}
 .hero:before{right:0}.hero h1>span:after{display:none}
+
+
+/* Landing readability and navigation. A single offset avoids double anchor spacing. */
+:root{--header-offset:108px;--muted:#465d6a;--green:#087348;scroll-padding-top:0}
+section[id],[id]{scroll-margin-top:var(--header-offset)}
+body{font-size:18px;line-height:1.6}
+.hero-copy>p,.value-heading>p,.section-heading p,.care-section>div:last-child>p,.steps p,.privacy-items p,.faq-list p,.final-cta p{font-size:18px;line-height:1.75}
+.header-inner nav,.header-actions,.button,.button.small,.text-link,.hero .actions .text-link,.hero .actions .button{font-size:16px}
+.eyebrow,.hero-notes,.audience-strip strong,.audience-strip .container>span:first-child{font-size:14px}
+.value-tabs strong{font-size:18px}.value-tabs small,.value-preview p,.sample-caption,.connected-flow small,.value-stock-list small,.value-finance small{font-size:15px}
+.connected-flow strong,.value-stock-list strong,.value-finance span{font-size:16px}
+.value-preview .text-link{color:#c7f3da}.value-preview .text-link:hover{color:white}
+.value-preview .panel-kicker,.value-preview .sample-caption,.value-preview p{color:#d1e2e9}
+.demo-mission strong,.demo-results strong{font-size:18px}.demo-mission p,.demo-mission .button,.demo-results>div>span:last-child,.demo-feedback,.demo-toolbar strong,.demo-tools .text-link,.demo-navigation button,.demo-cover p,.demo-cover small,.demo-bottom,.demo-bottom a{font-size:15px}
+.demo-navigation button,.header-inner a{min-height:44px}.faq-list summary{font-size:18px}.site-footer{font-size:16px}
+.hero-benefits{background:#e8f3ed;border:1px solid #c2d9cc;padding:36px;border-radius:24px;min-width:0}.hero-benefits h2{font-size:34px}.hero-benefits ul{list-style:none;padding:0;margin:0}.hero-benefits li{padding:16px 0;border-top:1px solid #c2d9cc}.hero-benefits strong{font-size:20px}.hero-benefits p{font-size:17px;margin:6px 0 0;color:#465d6a}
+.feature-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}.feature-grid article{border:1px solid #c2d9cc;border-radius:16px;padding:24px;background:white;display:flex;flex-direction:column}.feature-grid h3{font-size:23px;margin-bottom:12px}.feature-grid p{font-size:17px;color:#465d6a}.feature-grid a{margin-top:auto}
+.care-section{display:block;max-width:850px}.care-section h2{font-size:clamp(32px,4vw,46px)}
+@media(max-width:900px){.hero{grid-template-columns:1fr}.feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.header-inner{gap:12px}.header-inner nav{gap:14px}.header-inner nav,.header-actions{font-size:15px}}
+@media(max-width:700px){.feature-grid{grid-template-columns:1fr}.hero-benefits{padding:24px}.hero-benefits h2{font-size:30px}.hero-copy>p,.value-heading>p,.section-heading p,.care-section>div:last-child>p,.steps p,.privacy-items p,.faq-list p,.final-cta p{font-size:17px}.value-tabs strong{font-size:17px}.value-tabs small,.value-preview p,.sample-caption,.connected-flow small{font-size:14px}.connected-flow{display:grid;grid-template-columns:1fr}.connected-flow>b{transform:rotate(90deg);text-align:center}.connected-flow strong{font-size:16px}.demo-results>div>span:last-child{flex-wrap:wrap}.header-actions .button.small{font-size:14px}.brand img{width:112px}.header-actions{gap:10px}.container{width:calc(100% - 32px)}.demo-mission .button{font-size:15px}.value-finance{grid-template-columns:1fr}.hero .eyebrow{font-size:13px}}

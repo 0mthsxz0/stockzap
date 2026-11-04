@@ -25,12 +25,12 @@ O build produz `dist/`. Apenas esse diretório deve ser publicado. A configuraç
 
 ## Experiência
 
-- `/`: landing page com benefícios, recursos, demonstração navegável, ZapCare, perguntas frequentes e informações de privacidade.
+- `/`: landing page com benefícios, recursos, demonstração navegável, ZapChat, perguntas frequentes e informações de privacidade.
 - A demonstração carrega `/demo.html` em um iframe com origem isolada e dados fictícios em memória. O documento gerado da demo inclui seus scripts, estilos e logo; não depende de recursos adicionais que perderiam o cookie de autorização da prévia. Não carrega o SDK de autenticação. Não edite `demo.html` manualmente: o build o regenera com uma CSP por hash. A landing oferece venda guiada com efeitos reais nas regras compartilhadas, navegação entre módulos, reinício, ampliação e recuperação de falha de carregamento. Ela não acessa a sessão, não consulta contas reais e não envia os dados fictícios ao banco.
 - `/cadastro.html` e `/login.html`: Supabase Auth, confirmação de e-mail quando exigida pelo provedor, mensagens específicas para credenciais inválidas, rede, confirmação ou armazenamento bloqueado, sem informar se uma conta existe, e recuperação de senha.
 - `/auth/callback.html`: retorno PKCE. Abra os links no mesmo navegador utilizado para iniciar o cadastro ou recuperação.
 - `/app.html`: valida a sessão e abre a empresa vinculada à conta. Sem vínculo prévio, a API existente cria uma empresa vazia. Não importa os registros fictícios.
-- Produtos, estoque, pedidos, financeiro, prazos, equipe, configuração da empresa e ZapCare usam as operações da API. Equipe cadastral não equivale a uma nova conta com acesso.
+- Produtos, estoque, pedidos, financeiro, prazos, equipe, configuração da empresa e ZapChat usam as operações da API. Equipe cadastral não equivale a uma nova conta com acesso.
 - Configurações → Privacidade e conta: edição do perfil, exportação pessoal, exportação da empresa e solicitações com protocolo e consulta de status.
 - As URLs HTML antigas apontam para os mesmos fluxos. `/stockzap.html` também mostra a landing page. `/demo` e descendentes redirecionam para a demonstração incorporada.
 
@@ -56,7 +56,7 @@ Mantenha a confirmação de e-mail, defina a força mínima da senha também no 
 
 ## Limites importantes
 
-O ZapCare usa regras para consultar os dados. Não há IA generativa conectada. O WhatsApp é simulado apenas na demonstração. Não há pagamentos, emissão fiscal ou promessa de disponibilidade comercial.
+O ZapChat usa regras para consultar os dados. Não há IA generativa conectada. O WhatsApp é simulado apenas na demonstração. Não há pagamentos, emissão fiscal ou promessa de disponibilidade comercial.
 
 As solicitações de privacidade são registradas para análise: não excluem automaticamente a conta. A equipe deve acompanhar a tabela `stockzap_privacy_requests`, verificar os direitos e atualizar status, resposta e data. Os papéis de usuários comuns não podem alterar esses protocolos. Leia [segurança e privacidade](docs/SEGURANCA_PRIVACIDADE.md) antes de coletar dados de clientes reais. Controles técnicos não equivalem a uma certificação LGPD.
 
@@ -74,7 +74,7 @@ npm.cmd run test:e2e
 npm.cmd run test:preview
 ```
 
-O teste inicia e encerra o servidor, abre o Chromium e verifica venda guiada com baixa de estoque e receita, formulários no desktop e celular, ZapCare atualizado, isolamento da sessão, navegação por teclado, seis larguras, reinício, recuperação após falha de carregamento e movimento reduzido. Não cria contas nem envia dados ao Supabase. Para usar um Chromium já instalado, defina `CHROMIUM_EXECUTABLE_PATH`.
+O teste inicia e encerra o servidor, abre o Chromium e verifica venda guiada com baixa de estoque e receita, formulários no desktop e celular, ZapChat atualizado, isolamento da sessão, navegação por teclado, seis larguras, reinício, recuperação após falha de carregamento e movimento reduzido. Não cria contas nem envia dados ao Supabase. Para usar um Chromium já instalado, defina `CHROMIUM_EXECUTABLE_PATH`.
 
 A função conectada está na versão 7, com diagnóstico de saúde e reconhecimento restrito de prévias da StockZap e portas locais. A publicação do frontend continua vinculada à integração do PR; o domínio de produção não recebe automaticamente alterações de uma branch de prévia.
 
@@ -85,3 +85,4 @@ Use um servidor **HTTP/HTTPS**, como `npm run dev`, VSCode Live Server ou hosped
 A demo continua em sandbox sem `allow-same-origin` e sem acesso à conta. O cabeçalho específico de `demo.html` admite o pacote inline; a política CSP por hash dentro do próprio documento restringe a execução ao bundle gerado e bloqueia conexões de rede. Mantenha as duas políticas. Os testes verificam o bloqueio de script injetado e a ausência de recursos externos. Os demais documentos mantêm `script-src 'self'`.
 
 `npm run test:preview` verifica raiz e subpasta em portas variáveis, com a proteção por cookie, e não cria contas reais. Para copiar `dist/` para outra hospedagem, preserve os arquivos e os cabeçalhos de `vercel.json` quando o servidor permitir essa configuração. Cadastre os domínios usados pela conta na API e os retornos de e-mail no Supabase. Nenhum site pode autorizar automaticamente um novo domínio no provedor de autenticação.
+

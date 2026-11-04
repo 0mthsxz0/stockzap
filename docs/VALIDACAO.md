@@ -10,7 +10,7 @@
 
 Chromium 153, landing page nas larguras **320, 375, 768, 1024, 1440 e 1920 px**, sem transbordamento horizontal observado. A área real de privacidade também foi verificada em 375 px. Isso cobre os tamanhos testados, não todos os navegadores e dispositivos existentes.
 
-Na demonstração incorporada foram executados: menu no celular, abertura do iframe, cadastro de produto, nome com marcação HTML tratado como texto, registro de venda com atualização de estoque/financeiro e consulta ao ZapCare. A sandbox mantém origem isolada: não acessa o armazenamento do documento pai. Nenhuma requisição ao Supabase foi feita pela demonstração. Também foram verificados redirecionamento de visitante sem sessão e campos obrigatórios do cadastro.
+Na demonstração incorporada foram executados: menu no celular, abertura do iframe, cadastro de produto, nome com marcação HTML tratado como texto, registro de venda com atualização de estoque/financeiro e consulta ao ZapChat. A sandbox mantém origem isolada: não acessa o armazenamento do documento pai. Nenhuma requisição ao Supabase foi feita pela demonstração. Também foram verificados redirecionamento de visitante sem sessão e campos obrigatórios do cadastro.
 
 Na conta real foram executados: login por senha, carregamento da empresa pela API, cadastro de produto, persistência após recarregar a página, criação de pedido de privacidade, consulta de protocolo, visualização em 375 px, saída da sessão e cadastro de uma nova conta com criação do seu espaço. Não foram observados erros de JavaScript nos fluxos concluídos.
 
@@ -63,11 +63,11 @@ A revisão reproduziu dois erros de inicialização: o SDK local só existia em 
 
 Também foi reproduzido no Chromium um formulário da demo com o botão de salvar fora da área visível após ampliar/reduzir o painel. O documento isolado agora sinaliza a abertura de formulário para a landing alinhar a área de trabalho, sem expor o armazenamento da conta. O teste usa cliques reais nos formulários em desktop e celular.
 
-A demonstração tem documento público próprio, sem SDK de autenticação, confirmação de prontidão, indicador de carregamento, tempo limite e nova tentativa. A venda guiada executa `order.create` nas mesmas regras da API: gera pedido, baixa estoque e cria receita. Os resultados são enviados para a landing somente pela janela ativa da demo e com origem isolada. A navegação, ampliação, reinício e consultas ao ZapCare foram verificados.
+A demonstração tem documento público próprio, sem SDK de autenticação, confirmação de prontidão, indicador de carregamento, tempo limite e nova tentativa. A venda guiada executa `order.create` nas mesmas regras da API: gera pedido, baixa estoque e cria receita. Os resultados são enviados para a landing somente pela janela ativa da demo e com origem isolada. A navegação, ampliação, reinício e consultas ao ZapChat foram verificados.
 
 A landing e a área interna usam os mesmos tokens azul/verde. A proposta de valor se organiza por vender sem retrabalho, identificar reposições e entender o dinheiro. Os seletores funcionam por clique e teclado. Animações respeitam `prefers-reduced-motion`. Novas contas recebem primeiros passos com ações para cadastrar produto, registrar venda e consultar financeiro.
 
-Validação desta revisão: 23 testes Node aprovados e `npm run test:e2e` aprovado no Chromium 153, com venda guiada e resultado no estoque/financeiro, produto com HTML exibido como texto, formulários no desktop e celular, resposta atualizada do ZapCare, isolamento da sessão, seis larguras (320, 375, 768, 1024, 1440 e 1920), reinício, recuperação após bloqueio de carregamento e movimento reduzido. Build/check verificam 26 páginas. Nenhuma chamada à nuvem foi feita pela demo.
+Validação desta revisão: 23 testes Node aprovados e `npm run test:e2e` aprovado no Chromium 153, com venda guiada e resultado no estoque/financeiro, produto com HTML exibido como texto, formulários no desktop e celular, resposta atualizada do ZapChat, isolamento da sessão, seis larguras (320, 375, 768, 1024, 1440 e 1920), reinício, recuperação após bloqueio de carregamento e movimento reduzido. Build/check verificam 26 páginas. Nenhuma chamada à nuvem foi feita pela demo.
 
 Novo teste contra Auth/API reais na porta 5500: cadastro, empresa vazia, primeiros passos, produto, venda, baixa de estoque, persistência após recarga, logout e login por senha com verificação da API antes do redirecionamento. Sem erros de JavaScript observados. Conta e empresa fictícias foram removidas; consulta final confirmou zero remanescentes e os sete perfis anteriores preservados. Entrega/abertura de e-mail de recuperação continua fora da verificação.
 
@@ -85,8 +85,9 @@ A função `stockzap-api` versão 7 está ativa. Validação HTTP real: prefligh
 
 Um novo teste de navegador, com Auth/API reais encaminhados pelo proxy HTTP permitido, percorreu cadastro, aceite, empresa vazia, criação de produto, venda, baixa de estoque, persistência após recarga, logout, feedback de credenciais incorretas e novo login, em uma subpasta e com barreira de prévia. Não houve erros de JavaScript. A conta, as sessões e a empresa fictícias foram removidas; consulta final confirmou zero registros de teste remanescentes e sete perfis anteriores preservados. Nenhuma credencial foi gravada no relatório.
 
-Checks atuais: 27 testes Node; `npm run build`; `npm run check` em 26 páginas; `npm run test:e2e`; `npm run test:preview`. A suíte anterior da demo continua cobrindo seis larguras, formulários desktop/celular, ZapCare, teclado, recuperação e movimento reduzido.
+Checks atuais: 27 testes Node; `npm run build`; `npm run check` em 26 páginas; `npm run test:e2e`; `npm run test:preview`. A suíte anterior da demo continua cobrindo seis larguras, formulários desktop/celular, ZapChat, teclado, recuperação e movimento reduzido.
 
 Limites: o navegador remoto chegou ao login da Vercel, e o conector respondeu 403 para a equipe proprietária do projeto. O teste na própria prévia protegida exige uma sessão autorizada. Não se deve confundir a simulação fiel de proteção local com teste já concluído na Vercel. A tentativa de conexão nativa do Chromium local ao Supabase encontrou o certificado do proxy do ambiente; a validação TLS não foi desabilitada. Por isso o teste de UI com dados reais usa encaminhamento HTTP pelo proxy autorizado e é complementado pela verificação HTTP dos cabeçalhos CORS reais.
 
 Autenticação não é suportada por `file://`; use HTTP/HTTPS. Entrega de e-mails de confirmação/recuperação, outros motores de navegador e a revisão organizacional da LGPD permanecem fora dos fluxos verificados.
+

@@ -6,7 +6,7 @@
   let frame=null,ready=false,readiness=null,resolveReady,rejectReady,loadTimer,actionTimer,busy=false;
   function chart(summary){
     const daily=summary.daily,max=Math.max(...daily.map(x=>x.sales),1),points=daily.map((v,n)=>`${(n/Math.max(1,daily.length-1)*400).toFixed(1)},${(96-v.sales/max*80).toFixed(1)}`).join(' ');
-    document.getElementById('hero-chart').innerHTML=`<svg viewBox="0 0 400 106" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="sales-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#13a76f" stop-opacity=".28"/><stop offset="100%" stop-color="#13a76f" stop-opacity=".02"/></linearGradient></defs><polygon points="0,106 ${points} 400,106" fill="url(#sales-fill)"/><polyline points="${points}" fill="none" stroke="#139b6a" stroke-width="2.2" stroke-linejoin="round"/></svg>`;
+    const target=document.getElementById('hero-chart');if(!target)return;target.innerHTML=`<svg viewBox="0 0 400 106" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="sales-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#13a76f" stop-opacity=".28"/><stop offset="100%" stop-color="#13a76f" stop-opacity=".02"/></linearGradient></defs><polygon points="0,106 ${points} 400,106" fill="url(#sales-fill)"/><polyline points="${points}" fill="none" stroke="#139b6a" stroke-width="2.2" stroke-linejoin="round"/></svg>`;
   }
   function setText(selector,value){document.querySelectorAll(selector).forEach(node=>{node.textContent=value;});}
   function updateSummary(summary,product){
@@ -16,6 +16,10 @@
   }
   updateSummary({...initial,low:initial.low.length},seed.products.find(p=>p.sku==='CAF-001'));chart(initial);
   const toggle=document.querySelector('.menu-toggle'),nav=document.getElementById('navegacao');
+  const header=document.querySelector('.site-header');
+  function measureHeader(){document.documentElement.style.setProperty('--header-offset',(header.getBoundingClientRect().height+16)+'px');}
+  if('ResizeObserver' in window)new ResizeObserver(measureHeader).observe(header);
+  window.addEventListener('resize',measureHeader);measureHeader();
   function closeMenu(){nav.classList.remove('open');toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Abrir menu');}
   toggle.addEventListener('click',()=>{const open=nav.classList.toggle('open');toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Fechar menu':'Abrir menu');});
   nav.addEventListener('click',event=>{if(event.target.closest('a'))closeMenu();});
@@ -54,22 +58,29 @@
   }
   function ensureDemo(){return frame?(ready?Promise.resolve():readiness):launch();}
   async function command(command,extra={}){
-    if(busy)return;showDemo();
+    if(busy)return;const loading=ensureDemo();showDemo();
     try{
-      await ensureDemo();
+      await loading;
       if(command==='sale'){
         if(busy)return;
         busy=true;document.querySelectorAll('[data-demo-sale]').forEach(button=>{button.disabled=true;});feedback.classList.remove('error');feedback.textContent='Registrando a venda e atualizando os registros…';
         actionTimer=setTimeout(()=>errorMessage('A ação demorou para responder. Confira a demonstração antes de tentar novamente.'),8000);
       }
       frame.contentWindow.postMessage({type:'stockzap:demo-command',command,...extra},'*');
-      if(command!=='sale')stage.scrollIntoView({block:'start',behavior:'instant'});
+
     }catch(error){errorMessage(error.message);}
   }
   document.addEventListener('click',event=>{
     const sale=event.target.closest('[data-demo-sale]'),ask=event.target.closest('[data-demo-ask]'),route=event.target.closest('[data-demo-route]'),start=event.target.closest('#start-demo,[data-demo-retry]');
     if(!sale&&!ask&&!route&&!start)return;event.preventDefault();
-    if(sale)command('sale');else if(ask)command('ask');else if(route)command('navigate',{route:route.dataset.demoRoute});else{showDemo();ensureDemo().catch(error=>errorMessage(error.message));}
+    if(sale)command('sale');else if(ask)command('ask');else if(route)command('navigate',{route:route.dataset.demoRoute});else{ensureDemo().catch(error=>errorMessage(error.message));showDemo();}
+  });
+  document.addEventListener('click',event=>{
+    const link=event.target.closest('a[href^="#"]');if(!link||event.defaultPrevented)return;
+    const target=document.getElementById(link.hash.slice(1));if(!target)return;
+    event.preventDefault();closeMenu();measureHeader();history.pushState(null,'',link.hash);
+    target.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+    if(link.classList.contains('skip-link')){target.tabIndex=-1;target.focus({preventScroll:true});}
   });
   restart.addEventListener('click',()=>{launch().catch(error=>errorMessage(error.message));});
   function exitExpanded(){demoWindow.classList.remove('expanded');document.body.classList.remove('demo-expanded');fullscreen.setAttribute('aria-pressed','false');fullscreen.textContent='Ampliar ⛶';fullscreen.focus({preventScroll:true});}
@@ -87,7 +98,7 @@
         const effect=data.effect;finishAction();document.getElementById('result-order').textContent='Venda #'+effect.order+' registrada';document.getElementById('result-stock').textContent=effect.before+' → '+effect.after+' unidades';document.getElementById('result-revenue').textContent='+'+money(effect.amount)+' no financeiro';document.querySelector('.demo-results').classList.add('has-result');feedback.classList.remove('error');feedback.textContent='Pronto! '+effect.product+': uma venda registrada, uma unidade a menos no estoque e '+money(effect.amount)+' de receita paga. Confira os módulos abaixo.';
       }
     }else if(data.type==='stockzap:demo-error')errorMessage(typeof data.message==='string'?data.message:'Não foi possível realizar a ação.');
-    else if(data.type==='stockzap:demo-focus'){if(!demoWindow.classList.contains('expanded'))stage.scrollIntoView({block:'start',behavior:'instant'});}
+    else if(data.type==='stockzap:demo-focus'){/* Keep the page at the user's chosen section. */}
     else if(data.type==='stockzap:demo-escape'&&demoWindow.classList.contains('expanded'))exitExpanded();
     else if(data.type==='stockzap:demo-exit'){
       clearTimeout(loadTimer);finishAction();frame=null;ready=false;restart.hidden=true;fullscreen.hidden=true;if(demoWindow.classList.contains('expanded'))exitExpanded();
@@ -105,3 +116,4 @@
   function onScroll(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;const distance=document.documentElement.scrollHeight-innerHeight;progress.style.transform='scaleX('+(distance>0?Math.min(1,scrollY/distance):0)+')';document.querySelector('.site-header').classList.toggle('scrolled',scrollY>20);});}
   window.addEventListener('scroll',onScroll,{passive:true});onScroll();
 })();
+

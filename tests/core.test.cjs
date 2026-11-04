@@ -28,7 +28,8 @@ test('SKU duplicado, data inválida e valores inválidos são rejeitados',()=>{
  assert.throws(()=>C.mutate(s,'task.save',{...s.tasks[0],date:'2026-02-31'}));
  assert.throws(()=>C.mutate(s,'transaction.create',{type:'Despesa',description:'Teste',category:'Teste',amount:Infinity,date:s.asOf,dueDate:s.asOf,status:'Pago'}));
 });
-test('ZapCare consulta registros atualizados após uma movimentação',()=>{
+test('ZapChat consulta registros atualizados após uma movimentação',()=>{
  const s=seed(),p=s.products[0],next=C.mutate(s,'stock.move',{productId:p.id,type:'Entrada',quantity:10,reason:'Teste'});
  const answer=Care.answer(next,'Qual o estoque do '+p.sku+'?');assert.match(answer.text,new RegExp(String(p.stock+10)));assert.equal(answer.revision,next.revision);
 });
+
