@@ -3,7 +3,7 @@ const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypt
 const root=path.resolve(__dirname,'..');
 function generate(){
  const logo='data:image/svg+xml;base64,'+fs.readFileSync(path.join(root,'imagens/StockZap_logo.svg')).toString('base64');
- const modules=['demo','core','zapcare','ui','views','app'];
+ const modules=['demo','core','zapcare','ui','replenishment','views','app'];
  const source=fs.readFileSync(path.join(root,'js/site.js'),'utf8').replace(/\r\n/g,'\n')+';\n'+modules.map(name=>fs.readFileSync(path.join(root,'js/erp',name+'.js'),'utf8').replace(/\r\n/g,'\n')).join(';\n').replaceAll('imagens/StockZap_logo.svg',logo);
  const script=esbuild.transformSync(source,{minify:true,target:'es2022',charset:'utf8',legalComments:'none'}).code.replace(/<\/script/gi,'<\\/script');
  const hash=crypto.createHash('sha256').update(script).digest('base64');
@@ -13,3 +13,4 @@ function generate(){
 }
 function write(){fs.writeFileSync(path.join(root,'demo.html'),generate());}
 module.exports={generate,write};if(require.main===module)write();
+

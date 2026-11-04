@@ -29,7 +29,7 @@ let server,browser;
  }
  await page.setViewportSize({width:375,height:900});await page.getByRole('button',{name:'Abrir menu',exact:true}).click();await page.getByRole('navigation',{name:'Navegação principal'}).getByRole('link',{name:'Recursos',exact:true}).click();assert.equal(await page.locator('.menu-toggle').getAttribute('aria-expanded'),'false');
  await page.waitForTimeout(1000);const anchor=await page.locator('#recursos').evaluate(n=>({top:n.getBoundingClientRect().top,header:document.querySelector('.site-header').getBoundingClientRect().bottom}));assert.ok(anchor.top>=anchor.header && anchor.top<anchor.header+35,JSON.stringify(anchor));
- assert.equal(await page.locator('.hero-visual,.dashboard-preview').count(),0);assert.equal(await page.locator('.feature-grid a').count(),6);
+ assert.equal(await page.locator('.dashboard-preview').count(),1);assert.equal(await page.locator('#hero-chart svg').count(),1);assert.equal(await page.locator('.feature-grid a').count(),6);
  await page.locator('#restart-demo').click();await frame.getByRole('heading',{name:'Seu negócio em um olhar.'}).waitFor();assert.equal(await page.locator('#result-stock').innerText(),'6 unidades');
  // Same product form remains usable on a phone with the page partly scrolled.
  await page.locator('.demo-navigation').getByRole('button',{name:'Produtos',exact:true}).click();await frame.getByRole('button',{name:'Novo produto',exact:true}).click();

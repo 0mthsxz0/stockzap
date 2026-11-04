@@ -9,19 +9,22 @@
   form?.addEventListener('submit',async event=>{
     event.preventDefault();if(!form.reportValidity())return;
     const values=Object.fromEntries(new FormData(form)),button=form.querySelector('[type=submit]'),label=button.textContent;
+    let navigating=false;
     button.disabled=true;button.textContent='Aguarde…';message.hidden=true;
+    if(['login','cadastro'].includes(form.dataset.authForm))site.loading('Verificando a conexão com a StockZap…');
     try{
       const c=A.client(),kind=form.dataset.authForm;
       if(kind==='login'||kind==='cadastro')await A.health();
       if(kind==='login'){
+        site.loading('Validando seu e-mail e senha…');
         const {error}=await c.auth.signInWithPassword({email:values.email.trim(),password:values.senha});if(error)throw error;
-        button.textContent='Abrindo seu espaço…';await A.user();form.reset();location.replace(site.url('app.html'));
+        button.textContent='Abrindo seu espaço…';site.loading('Login confirmado. Abrindo seu espaço…');await A.user();form.reset();navigating=true;location.replace(site.url('app.html'));
       }else if(kind==='cadastro'){
         if(values.senha.length<12||values.senha.length>128)throw new Error('Use uma senha entre 12 e 128 caracteres.');
         const {data,error}=await c.auth.signUp({email:values.email.trim(),password:values.senha,options:{emailRedirectTo:callback(),data:{nome:values.nome.trim(),empresa:values.empresa.trim(),terms_version:A.version}}});
         if(error)throw error;
         form.reset();
-        if(data.session)location.replace(site.url('app.html'));
+        if(data.session){site.loading('Conta criada. Abrindo seu espaço…');navigating=true;location.replace(site.url('app.html'));}
         else show('Se o endereço puder receber um cadastro, você receberá um e-mail de confirmação. Confira também o spam e depois entre na sua conta.');
       }else if(kind==='recuperar'){
         const {error}=await c.auth.resetPasswordForEmail(values.email.trim(),{redirectTo:callback('recovery')});if(error)throw error;
@@ -35,7 +38,7 @@
         const link=document.createElement('a');link.href=site.url('login.html');link.className='button primary';link.textContent='Ir para o login';message.append(document.createElement('br'),link);
       }
     }catch(error){show(/Use |senhas precisam/.test(error.message)?error.message:A.authMessage(error),true);}
-    finally{button.disabled=false;button.textContent=label;}
+    finally{if(!navigating)site.loaded();button.disabled=false;button.textContent=label;}
   });
   if(document.body.dataset.page==='callback'){
     (async()=>{
@@ -47,3 +50,4 @@
     })();
   }
 })();
+

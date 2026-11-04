@@ -112,6 +112,8 @@
       document.querySelectorAll('.value-heading,.value-layout,.section-heading,.care-section,.steps article,.privacy-section,.faq-section,.final-cta').forEach(node=>{node.classList.add('reveal');reveal.observe(node);});
     }
   }
+  const requestedModule=new URLSearchParams(location.search).get('modulo');
+  if(['dashboard','produtos','estoque','financeiro','prazos','equipe','reposicao','zapcare'].includes(requestedModule))command('navigate',{route:requestedModule});
   let scheduled=false;const progress=document.querySelector('.reading-progress');
   function onScroll(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;const distance=document.documentElement.scrollHeight-innerHeight;progress.style.transform='scaleX('+(distance>0?Math.min(1,scrollY/distance):0)+')';document.querySelector('.site-header').classList.toggle('scrolled',scrollY>20);});}
   window.addEventListener('scroll',onScroll,{passive:true});onScroll();

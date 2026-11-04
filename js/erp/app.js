@@ -2,10 +2,11 @@
   'use strict';
   const C=window.SZCore,U=window.SZUI,V=window.SZViews,{esc:e,icon:i,date:d,badge:b,statusBadge:sb,initials}=U,money=C.money;
   const demo=document.body.dataset.demo==='true'||(new URLSearchParams(location.search).get('demo')==='1'&&window.parent!==window);
-  const routes=[['dashboard','Visão geral','dashboard'],['produtos','Produtos','box'],['estoque','Estoque','inventory'],['pedidos','Pedidos','orders'],['financeiro','Financeiro','finance'],['prazos','Prazos','calendar'],['equipe','Equipe','users'],...(demo?[['whatsapp','WhatsApp (simulado)','chat']]:[]),['zapcare','ZapChat','spark']];
+  const routes=[['dashboard','Visão geral','dashboard'],['produtos','Produtos','box'],['estoque','Estoque','inventory'],['reposicao','Reposição','inventory'],['pedidos','Pedidos','orders'],['financeiro','Financeiro','finance'],['prazos','Prazos','calendar'],['equipe','Equipe','users'],...(demo?[['whatsapp','WhatsApp (simulado)','chat']]:[]),['zapcare','ZapChat','spark']];
   const A=window.StockZapAuth,S=window.StockZapSite;
   const siteUrl=path=>S?S.url(path):new URL(path.replace(/^\/+/,''),new URL('./',location.href)).href;
   if(new URLSearchParams(location.search).get('demo')==='1'&&!demo){location.replace(siteUrl('#demo'));return;}
+  let replenishmentTargets={},chartType='line';
   let companyId='',role='owner',account=null,profile=null;
   let state,mode=demo?'demo':'cloud',aiEnabled=false,saving=false,filters={},page=1,period='month',stockTab='products',settingsTab='company',wa='w0',route='',theme='light',messages=[],chatOpen=false,chatBusy=false,chatDraft='';
   try{theme=localStorage.getItem('stockzap:theme')||'light';}catch{}
@@ -17,27 +18,37 @@
   }
   function loadLocal(){state=window.SZDemo.seed();}
   function consentScreen(){
+    app.setAttribute?.('aria-busy','false');
     app.innerHTML=`<main class="error-page"><section class="legal-gate"><h1>Seu espaço está quase pronto.</h1><p>Antes de continuar, leia as informações sobre a sua conta.</p><form id="legal-form"><label><input type="checkbox" required> Li e aceito os <a href="${e(siteUrl('termos.html'))}" target="_blank" rel="noopener">Termos de uso</a> e estou ciente da <a href="${e(siteUrl('privacidade.html'))}" target="_blank" rel="noopener">Política de privacidade</a>.</label><div class="form-error" hidden></div><button class="btn btn-primary" type="submit">Continuar para meu negócio</button></form><button class="btn btn-secondary" data-act="logout">Sair</button></section></main>`;
+  }
+  function loading(message){
+    app.setAttribute?.('aria-busy','true');
+    app.innerHTML=`<main class="loading-screen"><section class="loading-content" role="status" aria-live="polite"><img class="logo" src="imagens/StockZap_logo.svg" alt="StockZap"><span class="spinner" aria-hidden="true"></span><h1>Preparando seu negócio</h1><p>${e(message)}</p><small>O primeiro acesso pode levar alguns instantes. Você será levado ao painel assim que os dados estiverem prontos.</small></section></main>`;
   }
   async function init(){
     try{
+      if(!demo)loading('Verificando sua sessão…');
       if(demo){loadLocal();}
       else{
         account=await A.user();
+        loading('Conferindo os termos da sua conta…');
         const legal=await A.request('legal-status');
         if(!legal.accepted){
           if(account.user_metadata?.terms_version===A.version)await A.request('legal-accept',{method:'POST',body:{version:A.version}});
           else{consentScreen();return;}
         }
+        loading('Conectando à sua empresa…');
         const result=await A.request('companies');
         if(!result.companies?.length)throw new Error('Não foi possível preparar sua empresa. Tente novamente.');
         companyId=result.companies[0].id;role=result.companies[0].role;profile=result.profile;
+        loading('Carregando produtos, vendas e indicadores…');
         const data=await request('state');state=data.state;aiEnabled=Boolean(data.aiEnabled);
       }
       document.body.dataset.mode=mode;document.body.dataset.role=role;
-      U.applyTheme(theme);route=readRoute();render();
+      U.applyTheme(theme);route=readRoute();render();app.setAttribute?.('aria-busy','false');
       if(demo)toast('Demonstração com dados fictícios. As alterações são temporárias.');
     }catch(error){
+      app.setAttribute?.('aria-busy','false');
       if(error.status===401){app.replaceChildren();location.replace(siteUrl('login.html'));return;}
       app.innerHTML=`<main class="error-page"><section><h1>Não foi possível abrir seu espaço</h1><p>${e(error.message)}</p><button class="btn btn-primary" data-act="reload">Tentar novamente</button><a class="btn btn-secondary" href="${e(siteUrl(''))}">Voltar ao início</a></section></main>`;
     }
@@ -65,7 +76,7 @@
     }catch(error){publishDemo('stockzap:demo-error',{message:error.message});}
   });
   const readRoute=()=>{const value=location.hash.slice(1).split('?')[0];return [...routes.map(r=>r[0]),'configuracoes'].includes(value)?value:'dashboard';};
-  const context=()=>({state,route,filters,page,period,stockTab,settingsTab,wa,theme,mode,aiEnabled,demo,role,profile});
+  const context=()=>({state,route,filters,page,period,replenishmentTargets,chartType,stockTab,settingsTab,wa,theme,mode,aiEnabled,demo,role,profile});
   function render(){
     if(!state)return;
     const title=routes.find(x=>x[0]===route)?.[1]||'Configurações';document.title=title+' · '+state.company.name+' · StockZap';
@@ -176,7 +187,7 @@
   function drawChat(target,full=false){
     if(!target)return;
     const greeting=`<div class="care-greeting"><div class="care-symbol">${i('spark')}</div><h2>Seu negócio, em uma conversa.</h2><p>Olá, ${e(state.company.owner.split(' ')[0])}! Posso ajudar a entender os dados do ${e(state.company.name)}. Por onde começamos?</p><div class="care-prompts">${[['O que preciso repor?','inventory'],['Como estão minhas vendas este mês?','finance'],['Quais contas preciso pagar?','calendar'],['O que devo priorizar no negócio?','spark']].map(([q,icon])=>`<button class="care-prompt" data-act="care-ask" data-question="${q}"><span>${i(icon)} ${q}</span>${i('right')}</button>`).join('')}</div></div>`;
-    const history=messages.map((m,j)=>m.role==='user'?`<div class="care-message user"><div class="message-text">${e(m.text)}</div></div>`:`<div class="care-message assistant"><div class="message-meta">${i('spark')}ZAPCARE · ${m.engine==='ai'?'IA generativa':'Consulta local'}</div><div class="message-text">${formatText(m.text)}</div>${m.notice?'<p class="section-note">'+e(m.notice)+'</p>':''}${m.sources?.length?'<div class="sources">Fontes: '+e(m.sources.join(' · '))+' · Base em '+d(m.asOf||state.asOf)+'</div>':''}${m.revision&&m.revision!==state.revision?'<div class="sources">Os dados mudaram após esta resposta. Pergunte novamente para atualizar.</div>':''}<div class="care-message-actions">${(m.actions||[]).map(a=>`<a href="#${e(a.route)}" class="btn btn-secondary" data-act="care-route">${e(a.label)}${i('right')}</a>`).join('')}<button class="btn btn-ghost" data-act="care-copy" data-id="${j}" aria-label="Copiar resposta">${i('copy')}</button></div></div>`).join('');
+    const history=messages.map((m,j)=>m.role==='user'?`<div class="care-message user"><div class="message-text">${e(m.text)}</div></div>`:`<div class="care-message assistant"><div class="message-meta">${i('spark')}ZAPCHAT · ${m.engine==='ai'?'IA generativa':'Consulta local'}</div><div class="message-text">${formatText(m.text)}</div>${m.notice?'<p class="section-note">'+e(m.notice)+'</p>':''}${m.sources?.length?'<div class="sources">Fontes: '+e(m.sources.join(' · '))+' · Base em '+d(m.asOf||state.asOf)+'</div>':''}${m.revision&&m.revision!==state.revision?'<div class="sources">Os dados mudaram após esta resposta. Pergunte novamente para atualizar.</div>':''}<div class="care-message-actions">${(m.actions||[]).map(a=>`<a href="#${e(a.route)}" class="btn btn-secondary" data-act="care-route">${e(a.label)}${i('right')}</a>`).join('')}<button class="btn btn-ghost" data-act="care-copy" data-id="${j}" aria-label="Copiar resposta">${i('copy')}</button></div></div>`).join('');
     target.innerHTML=`${full?'<div class="care-dock-head"><span class="care-symbol">'+i('spark')+'</span><div><strong>ZapChat</strong><small>Assistente de '+e(state.company.name)+'</small></div><span class="badge green" style="margin-left:auto"><i class="dot"></i>'+ (demo?'Demonstração':'Consulta aos dados')+'</span></div>':''}<div class="care-chat-body" role="log" aria-label="Conversa com ZapChat" aria-live="polite">${messages.length?history:greeting}${chatBusy?'<div class="care-loading" role="status"><span></span><span></span><span></span><em style="margin-left:7px;font-style:normal">Consultando os dados do negócio…</em></div>':''}</div><form class="care-compose" data-care-form><div class="care-input-wrap"><textarea data-care-input aria-label="Pergunta ao ZapChat" placeholder="Pergunte sobre seu negócio…" rows="1" maxlength="3000" ${chatBusy?'disabled':''}>${e(chatDraft)}</textarea><button class="btn btn-primary" aria-label="Enviar pergunta" type="submit" ${chatBusy?'disabled':''}>${i('send')}</button></div><div class="care-footnote">${aiEnabled?'Respostas geradas por IA. Confira os dados.':(demo?'Consulta por regras · Dados fictícios':'Consulta por regras · Dados da sua empresa')}</div></form>`;
     const body=target.querySelector('.care-chat-body');body.scrollTop=body.scrollHeight;
   }
@@ -221,6 +232,9 @@
       if(action==='product-archive'){const p=state.products.find(x=>x.id===id);return confirmModal('Arquivar produto','O produto <strong>'+e(p.name)+'</strong> sairá do catálogo ativo. Os pedidos e registros anteriores serão preservados.','product-archive-confirm',id,'Arquivar');}
       if(action==='product-archive-confirm'){el.disabled=true;await perform('product.archive',{id});return closeModal();}
       if(action==='stock-new')return stockForm(id);
+      if(action==='chart-type'){chartType=id==='bar'?'bar':'line';return renderContent();}
+      if(action==='replenishment-export'){const rows=window.SZReplenishment.plan(state.products,replenishmentTargets);if(!rows.some(r=>r.quantity>0))return toast('A lista não tem quantidades a comprar.');return download('stockzap-reposicao-'+state.asOf+'.csv',window.SZReplenishment.csv(rows),'text/csv;charset=utf-8');}
+      if(action==='replenishment-reset'){replenishmentTargets={};return renderContent();}
       if(action==='stock-tab'){stockTab=id;filters={};page=1;return renderContent();}
       if(action==='order-new')return orderForm();
       if(action==='order-add-line')return addOrderLine();
@@ -277,6 +291,11 @@
   document.addEventListener('change',event=>{
     const el=event.target;
     if(el.dataset.filter){filters[el.dataset.filter]=el.value;page=1;renderContent();}
+    if(el.hasAttribute('data-replenishment-target')){
+      const value=Number(el.value),id=el.dataset.replenishmentTarget;
+      if(!el.value.trim()||!Number.isSafeInteger(value)||value<0){toast('Informe uma meta inteira e não negativa.',true);return renderContent();}
+      replenishmentTargets[id]=value;renderContent();document.querySelector('[data-replenishment-target="'+CSS.escape(id)+'"]')?.focus();
+    }
     if(el.hasAttribute('data-period')){period=el.value;page=1;renderContent();}
     if(el.matches('[data-order-product]'))updateOrderTotal();
     if(el.name==='type'&&el.closest('#stock-form')){const check=document.querySelector('[name="registerExpense"]');check.disabled=el.value==='Saída';if(check.disabled)check.checked=false;}
@@ -287,7 +306,12 @@
     const submit=form.querySelector('[type="submit"]');if(!submit)return;submit.disabled=true;const error=form.querySelector('.form-error');if(error)error.hidden=true;
     try{
       let data=dataOf(form),action;
-      if(form.id==='legal-form'){await A.request('legal-accept',{method:'POST',body:{version:A.version}});await init();return;}
+      if(form.id==='legal-form'){
+        loading('Registrando seu aceite dos termos…');
+        try{await A.request('legal-accept',{method:'POST',body:{version:A.version}});await init();}
+        catch(err){consentScreen();const message=document.querySelector('#legal-form .form-error');message.hidden=false;message.textContent=err.message;message.setAttribute('role','alert');}
+        return;
+      }
       if(form.id==='privacy-form'){
         const result=await A.request('privacy-request',{method:'POST',body:{kind:data.kind,details:data.details}});
         form.reset();const receipt=document.getElementById('privacy-receipt');receipt.textContent='Solicitação registrada. Protocolo: '+result.request.id+'. A equipe responsável deve analisar seu pedido; nenhum dado foi excluído automaticamente.';receipt.hidden=false;return;
