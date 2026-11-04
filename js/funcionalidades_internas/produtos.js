@@ -1,62 +1,11 @@
-// DADOS INICIAIS
-
-const produtosIniciais = [
-	{
-		id: 1,
-		nome: "Arroz 5kg",
-		codigo: "001",
-		categoria: "Alimentos",
-		preco: 25.0,
-		estoque: 32,
-		estoqueMinimo: 5,
-	},
-	{
-		id: 2,
-		nome: "Feijão 1kg",
-		codigo: "002",
-		categoria: "Alimentos",
-		preco: 8.5,
-		estoque: 5,
-		estoqueMinimo: 5,
-	},
-	{
-		id: 3,
-		nome: "Café 500g",
-		codigo: "003",
-		categoria: "Bebidas",
-		preco: 16.9,
-		estoque: 18,
-		estoqueMinimo: 5,
-	},
-	{
-		id: 4,
-		nome: "Macarrão 500g",
-		codigo: "004",
-		categoria: "Alimentos",
-		preco: 6.5,
-		estoque: 2,
-		estoqueMinimo: 5,
-	},
-	{
-		id: 5,
-		nome: "Refrigerante 2L",
-		codigo: "005",
-		categoria: "Bebidas",
-		preco: 9.9,
-		estoque: 0,
-		estoqueMinimo: 5,
-	},
-];
-
-// RECUPERAR PRODUTOS
-
-let produtos = JSON.parse(localStorage.getItem("stockzap_produtos"));
-
-if (!produtos){
-	produtos = produtosIniciais;
-	salvarProdutos();
+"use strict";
+let produtos = [];
+let produtosRaw = null;
+let usuarioId = null;
+let bloqueado = true;
+function escapar(valor) {
+ return String(valor).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
-
 // ELEMENTOS DA PÁGINA
 
 const listaProdutos = document.getElementById("lista-produtos");
@@ -94,8 +43,12 @@ const totalCategorias = document.getElementById("total-categorias");
 
 // SALVAR PRODUTOS
 
-function salvarProdutos(){
-	localStorage.setItem("stockzap_produtos", JSON.stringify(produtos));
+function salvarProdutos(novos) {
+ if (bloqueado) throw new Error("Os produtos não estão disponíveis para edição.");
+ StockZap.active();
+ const raw = StockZapCore.saveProducts(localStorage, usuarioId, novos, produtosRaw);
+ produtos = novos;
+ produtosRaw = raw;
 }
 
 // FORMATAR PREÇO
@@ -208,7 +161,7 @@ function renderizarProdutos(){
 
         <td>
             <div class="produto-nome">
-                <strong>${produto.nome}</strong>
+                <strong>${escapar(produto.nome)}</strong>
 
                 <span>
                     Estoque mínimo: ${produto.estoqueMinimo}
@@ -217,11 +170,11 @@ function renderizarProdutos(){
         </td>
 
         <td>
-            ${produto.codigo}
+            ${escapar(produto.codigo)}
         </td>
 
         <td>
-            ${produto.categoria}
+            ${escapar(produto.categoria)}
         </td>
 
         <td>
@@ -243,7 +196,7 @@ function renderizarProdutos(){
                 <button
                     class="botao-acao botao-editar"
                     title="Editar produto"
-                    onclick="editarProduto(${produto.id})"
+                    data-editar="${escapar(produto.id)}"
                 >
                     ✎
                 </button>
@@ -251,7 +204,7 @@ function renderizarProdutos(){
                 <button
                     class="botao-acao botao-excluir"
                     title="Excluir produto"
-                    onclick="excluirProduto(${produto.id})"
+                    data-excluir="${escapar(produto.id)}"
                 >
                     ×
                 </button>
@@ -306,55 +259,14 @@ formProduto.addEventListener("submit", function (event){
 		estoqueMinimo: Number(estoqueMinimo.value),
 	};
 
-	if(!novoProduto.nome || !novoProduto.codigo || !novoProduto.categoria){
-		alert("Preencha todos os campos obrigatórios.");
-		return;
-	}
-
-	if(
-		novoProduto.preco < 0 ||
-		novoProduto.estoque < 0 ||
-		novoProduto.estoqueMinimo < 0
-	){
-		alert("Os valores não podem ser negativos.");
-		return;
-	}
-
-	// EDIÇÃO
-
-	if (id){
-		const indice = produtos.findIndex(
-			(produto) => produto.id === Number(id),
-		);
-
-		if (indice !== -1){
-			produtos[indice] = {
-				id: Number(id),
-				...novoProduto,
-			};
-		}
-	}
-
-	// NOVO PRODUTO 
-
-	else{
-		const codigoExiste = produtos.some(
-			(produto) =>
-				produto.codigo.toLowerCase() ===
-				novoProduto.codigo.toLowerCase(),
-		);
-
-		if (codigoExiste){
-			alert("Já existe um produto com esse código.");
-			return;
-		}
-
-		novoProduto.id = Date.now();
-
-		produtos.push(novoProduto);
-	}
-
-	salvarProdutos();
+ try {
+  const novos = StockZapCore.upsertProduct(produtos, novoProduto, id, crypto.randomUUID());
+  salvarProdutos(novos);
+ } catch (erro) {
+  StockZap.message(erro.message, true);
+  return;
+ }
+ StockZap.message("Produto salvo neste navegador.");
 	atualizarCategorias();
 	atualizarResumo();
 	renderizarProdutos();
@@ -364,7 +276,7 @@ formProduto.addEventListener("submit", function (event){
 // EDITAR PRODUTO 
 
 function editarProduto(id){
-	const produto = produtos.find((produtoAtual) => produtoAtual.id === id);
+	const produto = produtos.find((produtoAtual) => String(produtoAtual.id) === String(id));
 
 	if (!produto) {
 		return;
@@ -385,21 +297,21 @@ function editarProduto(id){
 // EXCLUIR PRODUTO 
 
 function excluirProduto(id){
-	const produto = produtos.find((produtoAtual) => produtoAtual.id === id);
+	const produto = produtos.find((produtoAtual) => String(produtoAtual.id) === String(id));
 
 	if (!produto) {
 		return;
 	}
 
-	const confirmar = confirm(`Deseja excluir o produto "${produto.nome}"?`);
+	const confirmar = confirm(`Deseja excluir o produto "${escapar(produto.nome)}"?`);
 
 	if (!confirmar) {
 		return;
 	}
 
-	produtos = produtos.filter((produtoAtual) => produtoAtual.id !== id);
-
-	salvarProdutos();
+	try {
+  salvarProdutos(produtos.filter(produtoAtual => String(produtoAtual.id) !== String(id)));
+ } catch (erro) { StockZap.message(erro.message, true); return; }
 	atualizarCategorias();
 	atualizarResumo();
 	renderizarProdutos();
@@ -431,62 +343,30 @@ pesquisaProduto.addEventListener("input", renderizarProdutos);
 
 filtroCategoria.addEventListener("change", renderizarProdutos);
 
-async function carregarDadosUsuario() {
-	const {
-		data: { user },
-		error,
-	} = await stockzapSupabase.auth.getUser();
-
-	if (error) {
-		console.error("Erro ao carregar usuário:", error);
-		return;
-	}
-
-	if (!user) {
-		console.warn("Nenhum usuário autenticado.");
-		return;
-	}
-
-	const nome = user.user_metadata?.nome || "Usuário";
-
-	const nomeTopbar = document.getElementById("nome-usuario-topbar");
-	const avatarUsuario = document.getElementById("avatar-usuario");
-
-	if (nomeTopbar) {
-		nomeTopbar.textContent = nome;
-	}
-
-	if (avatarUsuario) {
-		const iniciais = nome
-			.split(" ")
-			.filter(Boolean)
-			.slice(0, 2)
-			.map((parte) => parte[0])
-			.join("")
-			.toUpperCase();
-
-		avatarUsuario.textContent = iniciais || "US";
-	}
+listaProdutos.addEventListener("click", event => {
+ const editar = event.target.closest("[data-editar]");
+ const excluir = event.target.closest("[data-excluir]");
+ if (editar) editarProduto(editar.dataset.editar);
+ if (excluir) excluirProduto(excluir.dataset.excluir);
+});
+function carregarProdutos() {
+ try {
+  const resultado = StockZapCore.loadProducts(localStorage, usuarioId);
+  produtos = resultado.items; produtosRaw = resultado.raw; bloqueado = false;
+  atualizarCategorias(); atualizarResumo(); renderizarProdutos();
+  StockZap.message("Produtos salvos somente neste navegador e nesta conta. Dados antigos compartilhados foram preservados, sem importação automática.");
+ } catch (erro) {
+  bloqueado = true; StockZap.message(erro.message, true);
+ }
+ abrirModal.disabled = bloqueado; abrirModalVazio.disabled = bloqueado;
 }
-
-// INICIALIZAÇÃO 
-
-carregarDadosUsuario();
-
-atualizarCategorias();
-atualizarResumo();
-renderizarProdutos();
-
-// LOGOUT
-const botoesSair = document.querySelectorAll(".menu-item.sair");
-botoesSair.forEach((btn) => {
-	btn.addEventListener("click", async (e) => {
-		e.preventDefault();
-		try {
-			await stockzapSupabase.auth.signOut();
-		} catch (err) {
-			console.error("Erro ao encerrar sessão:", err);
-		}
-		window.location.href = "../../stockzap.html";
-	});
+StockZap.ready.then(user => {
+ if (!user) return;
+ usuarioId = user.id;
+ carregarProdutos();
+ window.addEventListener("storage", event => {
+  if (event.key === null || event.key === StockZapCore.productKey(usuarioId)) {
+   fecharFormulario(); carregarProdutos();
+  }
+ });
 });
