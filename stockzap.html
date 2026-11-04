@@ -1,325 +1,279 @@
 <!doctype html>
 <html lang="pt-BR">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="view-transition" content="same-origin" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>StockZap - Gestão simples para o seu negócio</title>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Produtos, estoque, vendas e gestão em um só lugar. Conheça o StockZap, experimente com uma empresa fictícia e crie sua conta.">
+<title>StockZap · Seu negócio, no seu controle</title>
+<link rel="icon" href="demo/public/imagens/favicon.svg">
+<link rel="stylesheet" href="demo/public/css/style.css">
+<script src="demo/public/js/demo.js" defer>
+</script>
+<script src="demo/public/js/core.js" defer>
+</script>
+<script src="demo/public/js/ui.js" defer>
+</script>
+<link rel="stylesheet" href="css/landing-unificada.css">
+<script src="js/landing-unificada.js" defer>
+</script>
+</head>
+<body class="landing">
+<header class="site-header">
+<a href="stockzap.html" aria-label="StockZap, início">
+<img class="logo" src="demo/public/imagens/StockZap_logo.svg" alt="StockZap">
+</a>
+<nav class="site-nav" aria-label="Navegação principal">
+<a href="#solucao">A solução</a>
+<a href="#funcionalidades">Funcionalidades</a>
+<a href="#zapcare">ZapCare</a>
+<a href="#experimentar">Experimentar</a>
+</nav>
+<div class="site-actions">
+<a class="btn btn-secondary" href="html/primeiro_contato/login.html">Entrar</a>
+<a class="btn btn-secondary" href="html/primeiro_contato/cadastro.html">Criar conta</a>
+<a class="btn btn-primary" href="#experimentar">Experimentar <span data-icon="arrow">
+</span>
+</a>
+</div>
+</header>
+<main>
+<section class="hero" id="inicio">
+<div>
+<span class="eyebrow">MENOS COMPLICAÇÃO. MAIS CONTROLE.</span>
+<h1>Seu negócio merece<br>uma gestão <span>mais simples.</span>
+</h1>
+<p>Organize seus produtos, acompanhe o estoque e planeje a reposição. Experimente também os fluxos de vendas e financeiro com uma empresa fictícia.</p>
+<div class="head-actions">
+<a class="btn btn-primary" href="#experimentar">Experimentar agora <span data-icon="arrow">
+</span>
+</a>
+<a class="btn btn-secondary" href="html/primeiro_contato/cadastro.html">Criar minha conta</a>
+</div>
+<div class="hero-note">
+<span data-icon="circleCheck">
+</span> Empresa pronta para explorar · Sem cadastro ou senha</div>
+</div>
+<div class="hero-preview" aria-label="Prévia do painel da empresa fictícia">
+<div class="preview-shell">
+<div class="preview-top">
+<div>
+<small>EMPÓRIO AURORA</small>
+<strong>Seu negócio em um olhar.</strong>
+</div>
+<span class="badge green">
+<i class="dot">
+</i>Visão geral</span>
+</div>
+<div class="preview-metrics">
+<div class="preview-metric">
+<span>Vendas do mês</span>
+<strong data-demo="sales">R$ 15.409,90</strong>
+</div>
+<div class="preview-metric">
+<span>Produtos</span>
+<strong data-demo="products">18</strong>
+</div>
+<div class="preview-metric">
+<span>Em estoque</span>
+<strong data-demo="units">568</strong>
+</div>
+</div>
+<div class="preview-chart" aria-label="Ilustração do acompanhamento das vendas">
+<div class="preview-bar" style="height:36%">
+<small>SEG</small>
+</div>
+<div class="preview-bar" style="height:58%">
+<small>TER</small>
+</div>
+<div class="preview-bar" style="height:47%">
+<small>QUA</small>
+</div>
+<div class="preview-bar" style="height:78%">
+<small>QUI</small>
+</div>
+<div class="preview-bar" style="height:61%">
+<small>SEX</small>
+</div>
+<div class="preview-bar" style="height:90%">
+<small>SÁB</small>
+</div>
+<div class="preview-bar" style="height:70%">
+<small>DOM</small>
+</div>
+</div>
+<div class="preview-bottom">
+<span class="avatar green" data-icon="warning">
+</span>
+<span>
+<strong data-demo="low">4</strong> produtos precisam de reposição</span>
+<span class="badge orange" style="margin-left:auto">Acompanhar</span>
+</div>
+</div>
+<div class="floating-care">
+<span data-icon="spark">
+</span>
+<div>
+<strong>Conheça o ZapCare</strong>
+<small>Seu próximo passo pode começar com uma pergunta.</small>
+</div>
+</div>
+</div>
+</section>
+<div class="trusted">
+<span>FEITO PARA QUEM FAZ O NEGÓCIO ACONTECER</span>
+<div>
+<span>Mercados de bairro</span>
+<span>Lojas e empórios</span>
+<span>Comércios locais</span>
+<span>Pequenos empreendedores</span>
+</div>
+</div>
+<section class="site-section" id="funcionalidades">
+<div class="site-section-heading">
+<span class="eyebrow">TUDO NO MESMO LUGAR</span>
+<h2>Uma operação conectada.<br>Uma rotina mais leve.</h2>
+<p>Explore as ferramentas abaixo na experimentação. Na sua conta, comece por Produtos, Dashboard e Lista de reposição.</p>
+</div>
+<div class="feature-grid">
+<article class="feature-card">
+<div class="metric-icon" data-icon="box">
+</div>
+<h3>Produtos e estoque</h3>
+<p>Cadastre preços e custos, movimente quantidades e acompanhe os itens que precisam de reposição.</p>
+</article>
+<article class="feature-card">
+<div class="metric-icon blue" data-icon="orders">
+</div>
+<h3>Pedidos e vendas</h3>
+<p>Do balcão ao delivery, acompanhe o pedido. A venda atualiza o estoque e o financeiro automaticamente.</p>
+</article>
+<article class="feature-card">
+<div class="metric-icon" data-icon="finance">
+</div>
+<h3>Financeiro claro</h3>
+<p>Veja entradas, saídas, contas em aberto e o resultado estimado. Saiba de onde vem cada indicador.</p>
+</article>
+<article class="feature-card">
+<div class="metric-icon orange" data-icon="calendar">
+</div>
+<h3>Prazos sob controle</h3>
+<p>Organize compromissos, escolha responsáveis e dê atenção ao que precisa acontecer primeiro.</p>
+</article>
+<article class="feature-card">
+<div class="metric-icon blue" data-icon="users">
+</div>
+<h3>Equipe organizada</h3>
+<p>Reúna as pessoas, os cargos e os contatos do negócio, com tarefas ligadas aos responsáveis.</p>
+</article>
+<article class="feature-card">
+<div class="metric-icon" data-icon="chat">
+</div>
+<h3>WhatsApp na operação</h3>
+<p>Explore o atendimento e acompanhe pedidos desse canal em uma experiência demonstrativa integrada.</p>
+</article>
+</div>
+</section>
+<section class="site-section" id="zapcare" style="padding-top:0;padding-bottom:0">
+<div class="care-section">
+<div>
+<span class="eyebrow">INTELIGÊNCIA QUE CONHECE SEU NEGÓCIO</span>
+<h2>Converse com os dados do negócio.</h2>
+<p>Na experimentação, o ZapCare consulta os registros fictícios do Empório Aurora. Pergunte sobre estoque, vendas ou compromissos e veja de onde vêm as respostas.</p>
+<a class="btn" href="#experimentar" data-demo-route="zapcare">Explorar o ZapCare <span data-icon="arrow">
+</span>
+</a>
+</div>
+<div class="site-chat-preview">
+<div class="label-icon">
+<span class="care-symbol" data-icon="spark">
+</span>
+<div>
+<strong>ZapCare</strong>
+<small style="color:#92b5d3;display:block">Assistente do Empório Aurora</small>
+</div>
+</div>
+<div class="question">
+<span>O que eu preciso repor hoje?</span>
+</div>
+<div class="answer">Você tem <strong>4 produtos</strong> no mínimo ou abaixo.<br>
+<br>• Queijo Minas: <strong>esgotado</strong>
+<br>• Mel do Cerrado: <strong>3 unidades</strong>
+<br>• Café Cerrado: <strong>6 unidades</strong>
+<br>• Arroz Integral: <strong>8 unidades</strong>
+<small>Fonte: estoque da empresa fictícia · Consulta demonstrativa</small>
+</div>
+</div>
+</div>
+</section>
+<section class="site-section" id="experimentar" aria-labelledby="titulo-experimentar">
+<div class="site-section-heading">
+<span class="eyebrow">EXPERIMENTE AQUI MESMO</span>
+<h2 id="titulo-experimentar">Veja sua gestão ganhar forma.</h2>
+<p>Explore o Empório Aurora, uma empresa fictícia. Cadastre um produto, consulte o estoque ou pergunte ao ZapCare.</p>
+</div>
+<div class="experimento-barra">
+<p id="estado-experimento" role="status">Sem cadastro. Os dados deste exemplo ficam separados da sua conta.</p>
+<div>
+<button class="btn btn-primary" id="iniciar-experimento" type="button">Começar a experimentar</button>
+<button class="btn btn-secondary" id="ampliar-experimento" type="button" hidden>Ampliar</button>
+<button class="btn btn-secondary" id="fechar-experimento" type="button" hidden>Recolher</button>
+</div>
+</div>
+<div class="experimento-placeholder" id="capa-experimento">
+<h3>Um negócio pronto para você explorar</h3>
+<p>Produtos, pedidos, contas, equipe e um assistente que consulta os registros do exemplo.</p>
+</div>
+<iframe id="aplicativo-experimento" title="StockZap: experimente a gestão do Empório Aurora com dados fictícios" data-src="demo/public/app.html?mode=local#dashboard" allow="fullscreen" hidden>
+</iframe>
+<noscript>
+<p>Ative o JavaScript para experimentar o aplicativo nesta página.</p>
+</noscript>
+<p class="experimento-nota">WhatsApp simulado. O ZapCare usa consultas locais neste exemplo. As alterações ficam no navegador e não representam pedidos ou pagamentos reais.</p>
+<p class="experimento-conta">Quer organizar seus próprios produtos? <a href="html/primeiro_contato/cadastro.html">Crie sua conta</a> ou <a href="html/primeiro_contato/login.html">entre no seu painel</a>.</p>
+</section>
+<section class="site-section" id="solucao">
+<div class="site-section-heading">
+<span class="eyebrow">SIMPLES DESDE O PRIMEIRO CLIQUE</span>
+<h2>Da visão geral ao próximo passo.</h2>
+</div>
+<div class="steps">
+<article>
+<div class="step-number">01</div>
+<h3>Entre na demonstração</h3>
+<p>Uma empresa fictícia já está pronta, com produtos, pedidos, contas e pessoas.</p>
+</article>
+<article>
+<div class="step-number">02</div>
+<h3>Explore a operação</h3>
+<p>Cadastre, edite e experimente. As alterações se refletem nas outras áreas do aplicativo.</p>
+</article>
+<article>
+<div class="step-number">03</div>
+<h3>Pergunte ao ZapCare</h3>
+<p>Abra o assistente e consulte os dados da empresa, inclusive o que você acabou de mudar.</p>
+</article>
+</div>
+</section>
+<section class="site-section" style="padding-top:0">
+<div class="site-cta">
+<span class="eyebrow">SEU PRÓXIMO PASSO</span>
+<h2>Veja a StockZap funcionando.</h2>
+<p>Explore o Empório Aurora e conheça uma nova forma de acompanhar o negócio.</p>
+<a class="btn btn-primary" href="#experimentar">Experimentar nesta página <span data-icon="arrow">
+</span>
+</a>
+</div>
+</section>
+</main>
+<footer class="site-footer">
+<img class="logo" src="demo/public/imagens/StockZap_logo.svg" alt="StockZap">
+<small>2026 StockZap · Gestão simples para negócios reais.</small>
+<small>
+<a href="html/primeiro_contato/login.html">Entrar</a> · <a href="html/primeiro_contato/cadastro.html">Criar conta</a> · <a href="#experimentar">Experimentar</a>
+</small>
+<small>© 2026 StockZap. Todos os direitos reservados.
 
-		<link rel="stylesheet" href="css/base.css" />
-		<link rel="stylesheet" href="css/stockzap.css" />
-	</head>
-
-	<body>
-		<header class="header">
-			<div class="container-header">
-				<a href="stockzap.html" class="logo-link">
-					<img
-						src="imagens/StockZap_logo.svg"
-						alt="StockZap"
-						class="logo"
-					/>
-				</a>
-
-				<nav class="menu">
-					<a href="#inicio">Início</a>
-					<a href="#solucao">A solução</a>
-					<a href="#funcionalidades">Funcionalidades</a>
-					<a href="#contato">Contato</a>
-				</nav>
-
-				<div class="botoes-topo">
-					<a href="html/primeiro_contato/login.html" class="btn-login">Entrar</a>
-					<a href="html/primeiro_contato/cadastro.html" class="btn-cadastro"
-						>Criar conta</a
-					>
-				</div>
-			</div>
-		</header>
-
-		<main>
-			<!-- HERO -->
-			<section class="hero" id="inicio">
-				<div class="hero-conteudo">
-					<span class="hero-tag">GESTÃO DE ESTOQUE E NEGÓCIO</span>
-
-					<h1>
-						Tenha controle do seu negócio
-						<span>sem complicar.</span>
-					</h1>
-
-					<p>
-						O StockZap ajuda você a organizar produtos, acompanhar o
-						estoque e visualizar as principais informações do
-						negócio em um só lugar.
-					</p>
-
-					<div class="hero-botoes">
-						<a href="html/primeiro_contato/cadastro.html" class="btn-hero-principal">
-							Criar minha conta
-						</a>
-
-						<a href="#solucao" class="btn-hero-secundario">
-							Conhecer o StockZap
-						</a>
-					</div>
-
-					<div class="hero-observacao">
-						<span class="check">✓</span>
-						Organização simples para a rotina do seu negócio
-					</div>
-				</div>
-
-				<!-- PAINEL VISUAL -->
-				<div class="hero-painel">
-					<div class="painel-topo">
-						<div>
-							<span class="painel-label">VISÃO GERAL</span>
-							<strong>Seu negócio hoje</strong>
-						</div>
-
-						<span class="painel-status"> <i></i> Atualizado </span>
-					</div>
-
-					<div class="painel-indicadores">
-						<div class="indicador">
-							<span>Produtos</span>
-							<strong>125</strong>
-							<small>cadastrados</small>
-						</div>
-
-						<div class="indicador">
-							<span>Estoque</span>
-							<strong>117</strong>
-							<small>disponíveis</small>
-						</div>
-
-						<div class="indicador destaque">
-							<span>Vendas</span>
-							<strong>R$ 12.450</strong>
-							<small>neste mês</small>
-						</div>
-					</div>
-
-					<div class="painel-estoque">
-						<div class="painel-secao-titulo">
-							<strong>Produtos que precisam de atenção</strong>
-							<a href="html/primeiro_contato/login.html">Acessar sistema</a>
-						</div>
-
-						<div class="estoque-linha">
-							<div>
-								<strong>Arroz 5kg</strong>
-								<span>Código 001</span>
-							</div>
-							<b>3 un.</b>
-						</div>
-
-						<div class="estoque-linha">
-							<div>
-								<strong>Feijão 1kg</strong>
-								<span>Código 002</span>
-							</div>
-							<b>5 un.</b>
-						</div>
-
-						<div class="estoque-linha">
-							<div>
-								<strong>Café 500g</strong>
-								<span>Código 003</span>
-							</div>
-							<b class="normal">18 un.</b>
-						</div>
-					</div>
-				</div>
-			</section>
-
-			<!-- SOLUÇÃO -->
-			<section class="solucao" id="solucao">
-				<div class="section-intro">
-					<div>
-						<span class="section-label">A SOLUÇÃO</span>
-
-						<h2>Feito para deixar a gestão mais organizada.</h2>
-					</div>
-
-					<p>
-						O StockZap reúne as informações mais importantes da
-						operação para que você não precise depender de planilhas
-						espalhadas ou controles difíceis de acompanhar.
-					</p>
-				</div>
-
-				<div class="solucao-grid">
-					<article class="solucao-item">
-						<span class="numero">01</span>
-						<h3>Organize seus produtos</h3>
-						<p>
-							Cadastre produtos, códigos, preços e quantidades de
-							forma rápida e centralizada.
-						</p>
-					</article>
-
-					<article class="solucao-item">
-						<span class="numero">02</span>
-						<h3>Acompanhe o estoque</h3>
-						<p>
-							Saiba o que está disponível e identifique produtos
-							que precisam de reposição.
-						</p>
-					</article>
-
-					<article class="solucao-item">
-						<span class="numero">03</span>
-						<h3>Veja o que importa</h3>
-						<p>
-							Tenha uma visão geral das informações do negócio
-							através do dashboard.
-						</p>
-					</article>
-				</div>
-			</section>
-
-			<!-- FUNCIONALIDADES -->
-			<section class="funcionalidades" id="funcionalidades">
-				<div class="section-header">
-					<span>FUNCIONALIDADES</span>
-
-					<h2>As ferramentas que você precisa, no mesmo lugar.</h2>
-
-					<p>
-						Comece pelo essencial e tenha uma gestão mais
-						organizada.
-					</p>
-				</div>
-
-				<div class="funcionalidades-grid">
-					<article class="funcionalidade">
-						<div class="funcionalidade-numero">01</div>
-						<div>
-							<h3>Produtos</h3>
-							<p>
-								Cadastre e mantenha seus produtos organizados.
-							</p>
-						</div>
-						<a href="html/infos_landingpage/infoprodutos.html" class="funcionalidade-saiba-mais">
-        					Saiba mais
-    					</a>
-					</article>
-
-					<article class="funcionalidade">
-						<div class="funcionalidade-numero">02</div>
-						<div>
-							<h3>Estoque</h3>
-							<p>
-								Acompanhe entradas, saídas e níveis de estoque.
-							</p>
-						</div>
-							<a href="html/infos_landingpage/infoestoque.html" class="funcionalidade-saiba-mais">
-        					Saiba mais
-    					</a>
-					</article>
-
-					<article class="funcionalidade">
-						<div class="funcionalidade-numero">03</div>
-						<div>
-							<h3>Financeiro</h3>
-							<p>
-								Organize as movimentações financeiras do
-								negócio.
-							</p>
-						</div>
-							<a href="html/infos_landingpage/infofinanceiro.html" class="funcionalidade-saiba-mais">
-        					Saiba mais
-    					</a>
-					</article>
-
-					<article class="funcionalidade">
-						<div class="funcionalidade-numero">04</div>
-						<div>
-							<h3>Prazos</h3>
-							<p>Acompanhe datas importantes e entregas.</p>
-						</div>
-							<a href="html/infos_landingpage/infoprazos.html" class="funcionalidade-saiba-mais">
-        					Saiba mais
-    					</a>
-					</article>
-
-					<article class="funcionalidade">
-						<div class="funcionalidade-numero">05</div>
-						<div>
-							<h3>Dashboard</h3>
-							<p>
-								Visualize os principais números em um só painel.
-							</p>
-						</div>
-							<a href="html/infos_landingpage/infodashboard.html" class="funcionalidade-saiba-mais">
-        					Saiba mais
-    					</a>
-					</article>
-
-					<article class="funcionalidade">
-						<div class="funcionalidade-numero">06</div>
-						<div>
-							<h3>Equipe</h3>
-							<p>Gerencie os usuários que utilizam o sistema.</p>
-						</div>
-							<a href="html/infos_landingpage/infoequipe.html" class="funcionalidade-saiba-mais">
-        					Saiba mais
-    					</a>
-					</article>
-				</div>
-			</section>
-
-			<!-- CTA -->
-			<section class="cta" id="contato">
-				<div class="cta-conteudo">
-					<span>COMECE PELO ESSENCIAL</span>
-
-					<h2>Organize seu negócio com o StockZap.</h2>
-
-					<p>
-						Crie sua conta e comece a centralizar as informações da
-						sua operação.
-					</p>
-				</div>
-
-				<a href="html/primeiro_contato/cadastro.html" class="btn-cta"> Criar conta </a>
-			</section>
-		</main>
-
-		<footer class="rodape">
-			<div class="rodape-conteudo">
-				<div class="rodape-marca">
-					<img src="imagens/StockZap_logo.svg" alt="StockZap" />
-					<p>
-						Gestão de estoque simples para ajudar seu negócio a
-						crescer.
-					</p>
-				</div>
-
-				<div class="rodape-coluna">
-					<h3>Produto</h3>
-					<a href="#solucao">A solução</a>
-					<a href="#funcionalidades">Funcionalidades</a>
-					<a href="demo/public/index.html">Demo</a>
-				</div>
-
-				<div class="rodape-coluna">
-					<h3>Conta</h3>
-					<a href="html/primeiro_contato/login.html">Entrar</a>
-					<a href="html/primeiro_contato/cadastro.html">Criar conta</a>
-				</div>
-			</div>
-
-			<div class="rodape-final">
-				<p>© 2026 StockZap. Todos os direitos reservados.</p>
-
-				<p class="autores">
-					Desenvolvido por Matheus Milagres | Felipe Garrido | Davi
-					Freitas | Cauê Mathias | Manuela Valone
-				</p>
-			</div>
-		</footer>
-	</body>
+Desenvolvido por Matheus Milagres | Felipe Garrido | Davi Freitas | Cauê Mathias | Manuela Valone</small>
+</footer>
+</body>
 </html>

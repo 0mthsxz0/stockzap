@@ -17,7 +17,7 @@
   }
   async function init(){
     try{
-      if(location.protocol==='file:'){loadLocal();}
+      if(location.protocol==='file:' || new URLSearchParams(location.search).get('mode')==='local'){loadLocal();}
       else{
         let res;try{res=await fetch('api/state',{signal:AbortSignal.timeout(5000)});}catch{res=null;}
         if(res?.ok&&res.headers.get('Content-Type')?.includes('application/json')){const data=await res.json();state=data.state;mode='server';aiEnabled=data.aiEnabled;}
