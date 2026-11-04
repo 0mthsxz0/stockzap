@@ -116,6 +116,9 @@ window.StockZap = (() => {
 				throw response.error;
 			}
 			user = response.data.user;
+            const configured = await StockZapOnboardingService.load(stockzapSupabase,user,localStorage);
+            if (invalidated) return null;
+            if (!configured) { window.location.replace('../primeiro_contato/zapchat.html'); return null; }
 			shell();
 			document.documentElement.dataset.session = "ready";
 			panel.hidden = true;
