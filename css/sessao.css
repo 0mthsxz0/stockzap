@@ -1,0 +1,6 @@
+html[data-session="pending"] .sidebar,
+html[data-session="pending"] .main-content { display: none; }
+#estado-sessao { max-width: 720px; margin: 64px auto; padding: 32px; font-size: 18px; }
+#aviso-app { position: relative; margin: 16px 24px; padding: 16px; background: #eaf9ef; color: #17472a; font-size: 16px; line-height: 1.5; border-radius: 8px; }
+#aviso-app.erro { background: #fff0f0; color: #8c2020; }
+#aviso-app[hidden], #estado-sessao[hidden] { display: none; }
