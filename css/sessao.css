@@ -4,3 +4,11 @@ html[data-session="pending"] .main-content { display: none; }
 #aviso-app { position: relative; margin: 16px 24px; padding: 16px; background: #eaf9ef; color: #17472a; font-size: 16px; line-height: 1.5; border-radius: 8px; }
 #aviso-app.erro { background: #fff0f0; color: #8c2020; }
 #aviso-app[hidden], #estado-sessao[hidden] { display: none; }
+.grafico-catalogo { display: block; height: auto; }
+.grafico-catalogo .eixo-y, .grafico-catalogo .linhas-grade, .grafico-catalogo .eixo-x { display: none; }
+.grafico-catalogo .grafico-area { height: auto; min-height: 280px; }
+.grafico-catalogo .grafico-visual { position: static; height: auto; }
+.grafico-catalogo svg { width: 100%; height: 250px; }
+.grafico-catalogo ul { font-size: 16px; line-height: 1.6; padding-left: 24px; }
+.prioridade-estoque { outline: 3px solid #067429; }
+#perfil-negocio p, #lista-estoque-baixo-dashboard p { font-size: 16px; padding: 8px; line-height: 1.5; }

@@ -1400,10 +1400,14 @@ async function finalizarZapChat() {
 
 	const configuracao = gerarConfiguracao();
 
-	localStorage.setItem(
-		"stockzap_configuracao",
-		JSON.stringify(configuracao)
-	);
+	try {
+        const { data, error } = await stockzapSupabase.auth.getUser();
+        if (error || !data.user) throw new Error("Sua sessão terminou. Entre novamente.");
+        localStorage.setItem(`stockzap:usuario:${data.user.id}:perfil-zapchat:v1`, JSON.stringify(configuracao));
+    } catch (erro) {
+        alert("As respostas foram enviadas, mas o perfil não foi salvo neste navegador. " + erro.message);
+        return;
+    }
 
 	progresso.style.width = "100%";
 

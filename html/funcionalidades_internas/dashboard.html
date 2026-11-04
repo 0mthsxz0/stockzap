@@ -1,14 +1,17 @@
 <!doctype html>
 
-<html lang="pt-BR">
+<html lang="pt-BR" data-session="pending">
 	<head>
 		<meta charset="utf-8" />
 		<meta content="width=device-width, initial-scale=1.0" name="viewport" />
 		<title>StockZap - Dashboard</title>
 		<link href="../../css/base.css" rel="stylesheet" />
 		<link href="../../css/funcionalidades_internas/dashboard.css" rel="stylesheet" />
-	</head>
+	<link rel="stylesheet" href="../../css/sessao.css">
+</head>
 	<body>
+<section id="estado-sessao" role="status"><h1>Verificando sua sessão…</h1></section>
+<div id="aviso-app" role="status" hidden></div>
 		<!-- MENU LATERAL -->
 		<aside class="sidebar">
 			<div class="logo-area">
@@ -91,7 +94,7 @@
 				</button>
 				<div class="linha-container">
 					<h1>Dashboard</h1>
-				</div>	
+				</div>
 				<div class="topbar-direita">
 					<button aria-label="Notificações" class="notificacoes">
 						<img src="../../imagens/icones/bell-navy.svg" alt="" />
@@ -116,7 +119,7 @@
 						<p class="saudacao">Bem-vindo de volta,</p>
 						<h1 id="nome-usuario-dashboard">Usuário</h1>
 						<p class="subtitulo">
-							Aqui está um resumo do seu negócio hoje.
+							Indicadores calculados com os produtos desta conta neste navegador.
 						</p>
 					</div>
 					<div class="data-atual">
@@ -138,11 +141,8 @@
 						</div>
 						<div class="resumo-conteudo">
 							<span>Produtos cadastrados</span>
-							<strong id="dashboard-total-produtos">125</strong>
-							<p class="variacao positiva">
-								<span>↑ +5%</span>
-								<small>em relação ao mês anterior</small>
-							</p>
+							<strong id="dashboard-total-produtos">0</strong>
+
 						</div>
 					</article>
 					<article class="card resumo">
@@ -154,11 +154,8 @@
 						</div>
 						<div class="resumo-conteudo">
 							<span>Itens em estoque</span>
-							<strong id="dashboard-itens-estoque">117</strong>
-							<p class="variacao positiva">
-								<span>↑ +3%</span>
-								<small>em relação ao mês anterior</small>
-							</p>
+							<strong id="dashboard-itens-estoque">0</strong>
+
 						</div>
 					</article>
 					<article class="card resumo">
@@ -169,14 +166,11 @@
 							/>
 						</div>
 						<div class="resumo-conteudo">
-							<span>Vendas no mês</span>
-							<strong id="dashboard-vendas-mes"
-								>R$ 12.450,00</strong
+							<span>Valor de venda do estoque</span>
+							<strong id="dashboard-valor-catalogo"
+								>R$ 0,00</strong
 							>
-							<p class="variacao positiva">
-								<span>↑ +12%</span>
-								<small>em relação ao mês anterior</small>
-							</p>
+
 						</div>
 					</article>
 					<article class="card resumo">
@@ -188,11 +182,8 @@
 						</div>
 						<div class="resumo-conteudo">
 							<span>Produtos em estoque baixo</span>
-							<strong id="dashboard-estoque-baixo">8</strong>
-							<p class="variacao alerta">
-								<span>→ +2</span>
-								<small>em relação ao mês anterior</small>
-							</p>
+							<strong id="dashboard-estoque-baixo">0</strong>
+
 						</div>
 					</article>
 				</div>
@@ -206,22 +197,10 @@
 									class="icone-titulo verde-texto"
 									alt=""
 								/>
-								<h2>Vendas</h2>
+								<h2>Estoque por categoria</h2>
 							</div>
 							<div class="controles-grafico">
-								<select
-									id="periodo-grafico"
-									aria-label="Período"
-								>
-									<option value="7dias">
-										Últimos 7 dias
-									</option>
-									<option value="mes">Este mês</option>
-									<option value="3meses">
-										Últimos 3 meses
-									</option>
-									<option value="ano">Este ano</option>
-								</select>
+
 
 								<div
 									class="seletor-tipo-grafico"
@@ -244,7 +223,7 @@
 								</div>
 							</div>
 						</div>
-						<div class="grafico-container">
+						<div class="grafico-container grafico-catalogo">
 							<div class="eixo-y" id="eixo-y-grafico"></div>
 							<div class="grafico-area" id="grafico-area">
 								<div
@@ -259,7 +238,7 @@
 							</div>
 						</div>
 					</section>
-					<section class="card estoque-baixo">
+					<section class="card estoque-baixo" id="card-alertas">
 						<div class="cabecalho-card">
 							<div class="titulo-com-icone">
 								<img
@@ -269,7 +248,7 @@
 								/>
 								<h2>Estoque baixo</h2>
 							</div>
-							<a href="#">Ver todos <span>›</span></a>
+							<a href="produtos.html">Ver produtos <span>›</span></a>
 						</div>
 						<div class="estoque-cabecalho">
 							<span>Produto</span>
@@ -279,39 +258,20 @@
 						<div id="lista-estoque-baixo-dashboard"></div>
 					</section>
 				</div>
-				<!-- ÚLTIMOS LANÇAMENTOS -->
-				<section class="card lancamentos">
-					<div class="cabecalho-card">
-						<div class="titulo-com-icone">
-							<img
-								src="../../imagens/icones/document-green.svg"
-								class="icone-titulo verde-texto"
-								alt=""
-							/>
-							<h2>Últimos lançamentos</h2>
-						</div>
-						<a href="#">Ver todos <span>›</span></a>
-					</div>
-					<div class="tabela-lancamentos-wrapper">
-						<table class="tabela-lancamentos">
-							<thead>
-								<tr>
-									<th>Data</th>
-									<th>Produto</th>
-									<th>Tipo</th>
-									<th>Quantidade</th>
-									<th>Valor</th>
-								</tr>
-							</thead>
-							<tbody id="lista-lancamentos-dashboard"></tbody>
-						</table>
-					</div>
-				</section>
+<section class="card">
+<h2 id="foco-negocio">Seu perfil de negócio</h2>
+<div id="perfil-negocio"></div>
+<a id="acao-prioridade" href="../primeiro_contato/zapchat-perguntas.html">Completar ZapChat</a>
+<p>O valor do estoque usa o preço de venda cadastrado. Não representa lucro, custo ou vendas realizadas. Dados salvos somente neste navegador.</p>
+</section>
 			</section>
 		</main>
 		<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 		<script src="../../js/supabase.js"></script>
 		<script src="../../js/tema.js"></script>
-		<script src="../../js/funcionalidades_internas/dashboard.js"></script>
+		<script src="../../js/core.js"></script>
+<script src="../../js/dashboard-core.js"></script>
+<script src="../../js/app.js"></script>
+<script src="../../js/funcionalidades_internas/dashboard.js"></script>
 	</body>
 </html>

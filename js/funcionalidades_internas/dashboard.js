@@ -1,518 +1,73 @@
-// STOCKZAP - DASHBOARD
-
-const produtosPadraoDashboard = [
-	{
-		id: 1,
-		nome: "Arroz 5kg",
-		codigo: "001",
-		categoria: "Alimentos",
-		preco: 25,
-		estoque: 32,
-		estoqueMinimo: 5,
-	},
-	{
-		id: 2,
-		nome: "Feijão 1kg",
-		codigo: "002",
-		categoria: "Alimentos",
-		preco: 8.5,
-		estoque: 5,
-		estoqueMinimo: 5,
-	},
-	{
-		id: 3,
-		nome: "Café 500g",
-		codigo: "003",
-		categoria: "Bebidas",
-		preco: 16.9,
-		estoque: 18,
-		estoqueMinimo: 5,
-	},
-	{
-		id: 4,
-		nome: "Macarrão 500g",
-		codigo: "004",
-		categoria: "Alimentos",
-		preco: 6.5,
-		estoque: 2,
-		estoqueMinimo: 5,
-	},
-	{
-		id: 5,
-		nome: "Refrigerante 2L",
-		codigo: "005",
-		categoria: "Bebidas",
-		preco: 9.9,
-		estoque: 0,
-		estoqueMinimo: 5,
-	},
-];
-
-const dadosGraficos = {
-	"7dias": {
-		labels: ["08/09", "09/09", "10/09", "11/09", "12/09", "13/09", "14/09"],
-		valores: [900, 1100, 1350, 1600, 1450, 1850, 2200],
-	},
-	mes: {
-		labels: ["Sem. 1", "Sem. 2", "Sem. 3", "Sem. 4"],
-		valores: [2700, 3050, 3200, 3500],
-	},
-	"3meses": {
-		labels: ["Jul", "Ago", "Set"],
-		valores: [10800, 11750, 12450],
-	},
-	ano: {
-		labels: [
-			"Jan",
-			"Fev",
-			"Mar",
-			"Abr",
-			"Mai",
-			"Jun",
-			"Jul",
-			"Ago",
-			"Set",
-			"Out",
-			"Nov",
-			"Dez",
-		],
-		valores: [
-			7200, 7900, 8150, 8900, 9300, 10100, 10800, 11750, 12450, 0, 0, 0,
-		],
-	},
-};
-
-const lancamentosPadrao = [
-	{
-		data: "14/09/2026",
-		produto: "Arroz 5kg",
-		tipo: "Entrada",
-		quantidade: 20,
-		valor: 500,
-	},
-	{
-		data: "13/09/2026",
-		produto: "Café 500g",
-		tipo: "Entrada",
-		quantidade: 12,
-		valor: 202.8,
-	},
-	{
-		data: "12/09/2026",
-		produto: "Feijão 1kg",
-		tipo: "Saída",
-		quantidade: 4,
-		valor: 34,
-	},
-];
-
-// ELEMENTOS
-const totalProdutosElement = document.getElementById(
-	"dashboard-total-produtos",
-);
-const itensEstoqueElement = document.getElementById("dashboard-itens-estoque");
-const vendasMesElement = document.getElementById("dashboard-vendas-mes");
-const estoqueBaixoElement = document.getElementById("dashboard-estoque-baixo");
-const listaEstoqueBaixo = document.getElementById(
-	"lista-estoque-baixo-dashboard",
-);
-const listaLancamentos = document.getElementById("lista-lancamentos-dashboard");
-const dataDashboard = document.getElementById("data-dashboard");
-
-const periodoGrafico = document.getElementById("periodo-grafico");
-const botoesTipoGrafico = document.querySelectorAll(".tipo-grafico");
-const eixoY = document.getElementById("eixo-y-grafico");
-const eixoX = document.getElementById("eixo-x-grafico");
-const linhasGrade = document.getElementById("linhas-grade");
-const graficoVisual = document.getElementById("grafico-visual");
-const botaoMenu = document.querySelector(".botao-menu");
-
-let tipoGraficoAtual = localStorage.getItem("stockzap_tipo_grafico") || "linha";
-let periodoAtual = localStorage.getItem("stockzap_periodo_grafico") || "7dias";
-
-// FUNÇÕES AUXILIARES
-
-function formatarMoeda(valor) {
-	return Number(valor).toLocaleString("pt-BR", {
-		style: "currency",
-		currency: "BRL",
-	});
-}
-
-function obterProdutos() {
-	const produtosSalvos = JSON.parse(
-		localStorage.getItem("stockzap_produtos"),
-	);
-	return produtosSalvos || produtosPadraoDashboard;
-}
-
-function obterLancamentos() {
-	const lancamentosSalvos = JSON.parse(
-		localStorage.getItem("stockzap_lancamentos"),
-	);
-	return lancamentosSalvos || lancamentosPadrao;
-}
-
-function atualizarData() {
-	if (!dataDashboard) return;
-
-	const hoje = new Date();
-	dataDashboard.textContent = hoje.toLocaleDateString("pt-BR", {
-		day: "2-digit",
-		month: "long",
-		year: "numeric",
-	});
-}
-
-// CARDS DO DASHBOARD
-
-function atualizarCards() {
-	const produtos = obterProdutos();
-
-	const totalProdutos = produtos.length;
-	const totalItens = produtos.reduce(
-		(total, produto) => total + Number(produto.estoque || 0),
-		0,
-	);
-	const produtosBaixos = produtos.filter(
-		(produto) => Number(produto.estoque) <= Number(produto.estoqueMinimo),
-	);
-
-	const vendasMes = dadosGraficos.mes.valores.reduce(
-		(total, valor) => total + valor,
-		0,
-	);
-
-	totalProdutosElement.textContent = totalProdutos;
-	itensEstoqueElement.textContent = totalItens;
-	vendasMesElement.textContent = formatarMoeda(vendasMes);
-	estoqueBaixoElement.textContent = produtosBaixos.length;
-}
-
-// ESTOQUE BAIXO
-
-function renderizarEstoqueBaixo() {
-	if (!listaEstoqueBaixo) return;
-
-	const produtos = obterProdutos();
-
-	const baixos = produtos
-		.filter(
-			(produto) =>
-				Number(produto.estoque) <= Number(produto.estoqueMinimo),
-		)
-		.sort((a, b) => Number(a.estoque) - Number(b.estoque))
-		.slice(0, 5);
-
-	listaEstoqueBaixo.innerHTML = "";
-
-	if (baixos.length === 0) {
-		listaEstoqueBaixo.innerHTML = `
-			<div class="sem-dados-grafico">Nenhum produto com estoque baixo.</div>
-		`;
-		return;
-	}
-
-	baixos.forEach((produto) => {
-		const linha = document.createElement("div");
-		linha.className = "produto produto-tabela";
-
-		linha.innerHTML = `
-			<div class="produto-info">
-				<div class="produto-mini-icone">
-					<img src="../../imagens/icones/package-neutral.svg" alt="">
-				</div>
-				<div>
-					<strong>${produto.nome}</strong>
-					<span>Cód. ${produto.codigo}</span>
-				</div>
-			</div>
-
-			<span class="estoque-quantidade">${produto.estoque} un.</span>
-			<span class="badge-baixo">Baixo</span>
-		`;
-
-		listaEstoqueBaixo.appendChild(linha);
-	});
-}
-
-// ÚLTIMOS LANÇAMENTOS
-
-function renderizarLancamentos() {
-	if (!listaLancamentos) return;
-
-	const lancamentos = obterLancamentos().slice(0, 5);
-	listaLancamentos.innerHTML = "";
-
-	lancamentos.forEach((lancamento) => {
-		const linha = document.createElement("tr");
-		const classeTipo =
-			lancamento.tipo.toLowerCase() === "entrada"
-				? "badge-entrada"
-				: "badge-saida";
-
-		linha.innerHTML = `
-			<td>${lancamento.data}</td>
-			<td>${lancamento.produto}</td>
-			<td><span class="${classeTipo}">${lancamento.tipo}</span></td>
-			<td>${lancamento.quantidade} un.</td>
-			<td>${formatarMoeda(lancamento.valor)}</td>
-		`;
-
-		listaLancamentos.appendChild(linha);
-	});
-}
-
-// GRÁFICOS
-
-function calcularMaximoEixo(valores) {
-	const maior = Math.max(...valores, 0);
-	if (maior === 0) return 1000;
-
-	const passoBase = maior <= 5000 ? 1000 : maior <= 20000 ? 5000 : 10000;
-	return Math.ceil(maior / passoBase) * passoBase;
-}
-
-function criarEixos(labels, valores) {
-	const maximo = calcularMaximoEixo(valores);
-	const quantidadeLinhas = 6;
-
-	eixoY.innerHTML = "";
-	linhasGrade.innerHTML = "";
-	eixoX.innerHTML = "";
-
-	for (let i = quantidadeLinhas - 1; i >= 0; i--) {
-		const valor = (maximo / (quantidadeLinhas - 1)) * i;
-		const span = document.createElement("span");
-		span.textContent =
-			valor === 0
-				? "R$ 0"
-				: `R$ ${Math.round(valor).toLocaleString("pt-BR")}`;
-		eixoY.appendChild(span);
-
-		linhasGrade.appendChild(document.createElement("span"));
-	}
-
-	labels.forEach((label) => {
-		const span = document.createElement("span");
-		span.textContent = label;
-		eixoX.appendChild(span);
-	});
-
-	return maximo;
-}
-
-function desenharGraficoLinha(labels, valores, maximo) {
-	if (valores.length === 0) return;
-
-	const largura = 700;
-	const altura = 250;
-	const margemX = 12;
-	const margemY = 15;
-	const larguraUtil = largura - margemX * 2;
-	const alturaUtil = altura - margemY * 2;
-
-	const pontos = valores.map((valor, indice) => {
-		const x =
-			valores.length === 1
-				? largura / 2
-				: margemX + (indice / (valores.length - 1)) * larguraUtil;
-		const y = altura - margemY - (valor / maximo) * alturaUtil;
-		return { x, y, valor };
-	});
-
-	const caminho = pontos
-		.map(
-			(ponto, indice) =>
-				`${indice === 0 ? "M" : "L"}${ponto.x} ${ponto.y}`,
-		)
-		.join(" ");
-	const area = `${caminho} L${pontos[pontos.length - 1].x} ${altura - margemY} L${pontos[0].x} ${altura - margemY} Z`;
-
-	graficoVisual.innerHTML = `
-		<svg class="grafico-svg-dinamico" viewBox="0 0 ${largura} ${altura}" preserveAspectRatio="none" aria-label="Gráfico de linha de vendas">
-			<path class="area" d="${area}"></path>
-			<path class="linha" d="${caminho}"></path>
-			${pontos
-				.map(
-					(ponto) => `
-				<circle cx="${ponto.x}" cy="${ponto.y}" r="5">
-					<title>${formatarMoeda(ponto.valor)}</title>
-				</circle>
-			`,
-				)
-				.join("")}
-		</svg>
-	`;
-}
-
-function desenharGraficoBarras(labels, valores, maximo) {
-	const barras = valores
-		.map((valor, indice) => {
-			const altura = maximo === 0 ? 0 : (valor / maximo) * 100;
-
-			return `
-			<div
-				class="barra-grafico"
-				style="height: ${altura}%"
-				title="${labels[indice]}: ${formatarMoeda(valor)}"
-			></div>
-		`;
-		})
-		.join("");
-
-	graficoVisual.innerHTML = `<div class="grafico-barras">${barras}</div>`;
-}
-
-function atualizarBotoesGrafico() {
-	botoesTipoGrafico.forEach((botao) => {
-		botao.classList.toggle(
-			"ativo",
-			botao.dataset.tipo === tipoGraficoAtual,
-		);
-	});
-}
-
-function renderizarGrafico() {
-	const dados = dadosGraficos[periodoAtual];
-	if (!dados || !graficoVisual) return;
-
-	const maximo = criarEixos(dados.labels, dados.valores);
-
-	if (tipoGraficoAtual === "barras") {
-		desenharGraficoBarras(dados.labels, dados.valores, maximo);
-	} else {
-		desenharGraficoLinha(dados.labels, dados.valores, maximo);
-	}
-
-	atualizarBotoesGrafico();
-}
-
-// EVENTOS
-
-botoesTipoGrafico.forEach((botao) => {
-	botao.addEventListener("click", () => {
-		tipoGraficoAtual = botao.dataset.tipo;
-		localStorage.setItem("stockzap_tipo_grafico", tipoGraficoAtual);
-		renderizarGrafico();
-	});
-});
-
-periodoGrafico.addEventListener("change", () => {
-	periodoAtual = periodoGrafico.value;
-	localStorage.setItem("stockzap_periodo_grafico", periodoAtual);
-	renderizarGrafico();
-});
-
-if (botaoMenu) {
-	botaoMenu.addEventListener("click", () => {
-		if (window.innerWidth <= 640) return;
-		document.body.classList.toggle("sidebar-recolhida");
-	});
-}
-
-window.addEventListener("storage", (event) => {
-	if (event.key === "stockzap_produtos") {
-		atualizarCards();
-		renderizarEstoqueBaixo();
-	}
-});
-
-async function carregarDadosUsuario() {
-	const {
-		data: { user },
-		error: erroAuth,
-	} = await stockzapSupabase.auth.getUser();
-
-	if (erroAuth) {
-		console.error("Erro ao carregar usuário:", erroAuth);
-		return;
-	}
-
-	if (!user) {
-		console.warn("Nenhum usuário autenticado.");
-		return;
-	}
-
-	// Busca os dados do usuário na tabela usuario
-	const { data: usuario, error: erroUsuario } = await stockzapSupabase
-		.from("usuario")
-		.select("nome_usuario")
-		.eq("auth_id", user.id)
-		.single();
-
-	if (erroUsuario) {
-		console.error(
-			"Erro ao buscar dados do usuário na tabela usuario:",
-			erroUsuario
-		);
-		return;
-	}
-
-	const nome = usuario?.nome_usuario || "Usuário";
-
-	const nomeTopbar = document.getElementById("nome-usuario-topbar");
-	const nomeDashboard = document.getElementById("nome-usuario-dashboard");
-	const avatarUsuario = document.getElementById("avatar-usuario");
-
-	// Nome no topo
-	if (nomeTopbar) {
-		nomeTopbar.textContent = nome;
-	}
-
-	// Nome na saudação do Dashboard
-	if (nomeDashboard) {
-		nomeDashboard.textContent = nome;
-	}
-
-	// Iniciais do avatar
-	if (avatarUsuario) {
-		const partesNome = nome
-			.trim()
-			.split(/\s+/)
-			.filter(Boolean);
-
-		let iniciais = "";
-
-		if (partesNome.length === 1) {
-			// Exemplo: João → JO
-			iniciais = partesNome[0]
-				.substring(0, 2)
-				.toUpperCase();
-		} else {
-			// Exemplo: João Silva → JS
-			iniciais =
-				partesNome[0][0] +
-				partesNome[partesNome.length - 1][0];
-
-			iniciais = iniciais.toUpperCase();
-		}
-
-		avatarUsuario.textContent = iniciais || "US";
-	}
-}
-
-// INICIALIZAÇÃO
-
-carregarDadosUsuario();
-
-periodoGrafico.value = periodoAtual;
-atualizarData();
-atualizarCards();
-renderizarEstoqueBaixo();
-renderizarLancamentos();
-renderizarGrafico();
-
-// LOGOUT
-const botoesSair = document.querySelectorAll(".menu-item.sair");
-botoesSair.forEach((btn) => {
-	btn.addEventListener("click", async (e) => {
-		e.preventDefault();
-		try {
-			await stockzapSupabase.auth.signOut();
-		} catch (err) {
-			console.error("Erro ao encerrar sessão:", err);
-		}
-		window.location.href = "../../stockzap.html";
-	});
+"use strict";
+StockZap.ready.then(user => {
+ if (!user) return;
+ const C=StockZapCore, D=StockZapDashboard;
+ const money=n=>n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+ const set=(id,text)=>{document.getElementById(id).textContent=text;};
+ let tipo=StockZap.readPreference('grafico','linha');
+ if (!['linha','barras'].includes(tipo)) tipo='linha';
+ const labels=['Operação','Segmento','Modelo','Maturidade','Prioridade'];
+ function renderProfile() {
+  const area=document.getElementById('perfil-negocio');area.replaceChildren();
+  try {
+   const p=D.profile(StockZap.readPreference('perfil-zapchat',null));
+   if (!p) {area.textContent='Complete o ZapChat nesta conta para personalizar seu painel.';return;}
+   Object.values(p).forEach((value,i)=>area.append(StockZap.element('p',labels[i]+': '+value)));
+   const focus=document.getElementById('foco-negocio');
+   focus.textContent='Sua prioridade: '+p.prioridade;
+   const link=document.getElementById('acao-prioridade');
+   const available=['Produtos','Estoque'].includes(p.prioridade);
+   link.href=available?'produtos.html':'../primeiro_contato/zapchat-perguntas.html';
+   link.textContent=available?'Organizar meus produtos':'Revisar meu perfil';
+   document.getElementById('card-alertas').classList.toggle('prioridade-estoque',p.prioridade==='Estoque');
+  } catch (_) {area.textContent='Não foi possível ler seu perfil. Refaça o ZapChat para atualizar.';}
+ }
+ function renderChart(categories) {
+  const area=document.getElementById('grafico-visual');area.replaceChildren();
+  if (!categories.length) {area.textContent='Cadastre produtos para visualizar as quantidades por categoria.';return;}
+  const max=Math.max(...categories.map(c=>c[1]),1);
+  const list=StockZap.element('ul');
+  for (const [name,units] of categories) list.append(StockZap.element('li',name+': '+units+' un.'));
+  const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg');
+  svg.setAttribute('viewBox','0 0 700 250');svg.setAttribute('role','img');svg.setAttribute('aria-label','Itens em estoque por categoria');
+  const step=640/Math.max(categories.length,1);
+  const points=categories.map((c,i)=>({x:30+step*(i+.5),y:220-c[1]/max*180}));
+  if(tipo==='linha') {
+   const line=document.createElementNS(ns,'polyline');line.setAttribute('points',points.map(p=>p.x+','+p.y).join(' '));line.setAttribute('fill','none');line.setAttribute('stroke','#067429');line.setAttribute('stroke-width','3');svg.append(line);
+  }
+  points.forEach((p,i)=>{
+   const node=document.createElementNS(ns,tipo==='barras'?'rect':'circle');
+   if(tipo==='barras') {node.setAttribute('x',p.x-step*.3);node.setAttribute('y',p.y);node.setAttribute('width',step*.6);node.setAttribute('height',220-p.y);}
+   else {node.setAttribute('cx',p.x);node.setAttribute('cy',p.y);node.setAttribute('r','5');}
+   node.setAttribute('fill','#067429');svg.append(node);
+  });
+  area.append(svg,list);
+ }
+ function render() {
+  try {
+   const items=C.loadProducts(localStorage,user.id).items;
+   const summary=D.summarize(items);
+   set('dashboard-total-produtos',summary.total);set('dashboard-itens-estoque',summary.units);
+   set('dashboard-valor-catalogo',money(summary.value));set('dashboard-estoque-baixo',summary.low.length);
+   const list=document.getElementById('lista-estoque-baixo-dashboard');list.replaceChildren();
+   for (const p of summary.low.slice(0,5)) list.append(StockZap.element('p',p.nome+' · '+p.estoque+' un. · mínimo '+p.estoqueMinimo));
+   if(!summary.low.length) list.textContent=items.length?'Nenhum produto no mínimo ou abaixo.':'Seu catálogo está vazio. Comece cadastrando um produto.';
+   renderChart(summary.categories);renderProfile();
+   set('data-dashboard',new Date().toLocaleDateString('pt-BR',{dateStyle:'long'}));
+  } catch(erro) {
+   for(const id of ['dashboard-total-produtos','dashboard-itens-estoque','dashboard-valor-catalogo','dashboard-estoque-baixo']) set(id,'Indisponível');
+   document.getElementById('lista-estoque-baixo-dashboard').replaceChildren();
+   document.getElementById('grafico-visual').replaceChildren();
+   StockZap.message(erro.message,true);
+  }
+ }
+ document.querySelectorAll('[data-tipo]').forEach(button=>button.addEventListener('click',()=>{
+  tipo=button.dataset.tipo;StockZap.writePreference('grafico',tipo);
+  document.querySelectorAll('[data-tipo]').forEach(b=>{b.classList.toggle('ativo',b===button);b.setAttribute('aria-pressed',String(b===button));});render();
+ }));
+ document.querySelectorAll('[data-tipo]').forEach(b=>{b.classList.toggle('ativo',b.dataset.tipo===tipo);b.setAttribute('aria-pressed',String(b.dataset.tipo===tipo));});
+ window.addEventListener('storage',event=>{
+  if(event.key===null || event.key===C.productKey(user.id) || event.key===StockZap.storageKey('perfil-zapchat')) render();
+ });
+ render();
 });
