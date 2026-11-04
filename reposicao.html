@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lista de reposição · StockZap</title><link rel="stylesheet" href="css/reposicao.css"></head>
+<body>
+<header><a href="stockzap.html"><img src="imagens/StockZap_logo.svg" alt="StockZap" width="150"></a><nav><a href="html/funcionalidades_internas/dashboard.html">Meu painel</a><a href="reposicao.html?demo=1">Ver exemplo</a></nav></header>
+<main><p class="tag">DO ALERTA À AÇÃO</p><h1>O que preciso repor?</h1><p class="intro">Transforme os produtos em atenção em uma lista de compra. Ajuste as metas e leve a lista ao fornecedor.</p>
+<p id="estado" role="status">Carregando catálogo…</p>
+<section class="resumo" aria-label="Resumo da reposição"><article><span>Produtos esgotados</span><strong id="esgotados">—</strong></article><article><span>Produtos para comprar</span><strong id="produtos">—</strong></article><article><span>Unidades na lista</span><strong id="unidades">—</strong></article></section>
+<section class="painel"><div class="cabecalho"><div><h2>Sua próxima compra</h2><p>Meta inicial sugerida: duas vezes o mínimo (pelo menos 1 unidade). Ajuste conforme sua demanda.</p></div><button id="baixar" disabled>Baixar lista CSV</button></div>
+<div class="tabela"><table><caption>Prioridade: produtos esgotados primeiro</caption><thead><tr><th>Produto</th><th>Atual / mínimo</th><th>Meta desejada</th><th>Comprar</th><th>Situação</th></tr></thead><tbody id="lista"></tbody></table></div>
+<p id="vazio" hidden>Seu estoque está acima dos mínimos. Nenhuma reposição sugerida.</p>
+<p id="erro" role="alert" hidden></p>
+</section><p class="nota">Planejamento de compra: esta lista não faz pedidos nem altera o estoque. As metas ajustadas valem apenas nesta página. O catálogo da conta fica neste navegador.</p>
+<p><a href="html/funcionalidades_internas/produtos.html">Gerenciar meus produtos</a></p>
+</main>
+<script src="js/core.js"></script><script src="js/reposicao-core.js"></script><script src="js/reposicao.js"></script>
+</body></html>
