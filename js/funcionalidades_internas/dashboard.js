@@ -17,7 +17,7 @@ StockZap.ready.then(user => {
    focus.textContent='Sua prioridade: '+p.prioridade;
    const link=document.getElementById('acao-prioridade');
    const available=['Produtos','Estoque'].includes(p.prioridade);
-   link.href=available?'produtos.html':'../primeiro_contato/zapchat-perguntas.html';
+   link.href=available?'produtos.html':'../primeiro_contato/zapchat-perguntas.html?editar=1';
    link.textContent=available?'Organizar meus produtos':'Revisar meu perfil';
    document.getElementById('card-alertas').classList.toggle('prioridade-estoque',p.prioridade==='Estoque');
   } catch (_) {area.textContent='Não foi possível ler seu perfil. Refaça o ZapChat para atualizar.';}

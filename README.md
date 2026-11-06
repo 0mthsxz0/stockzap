@@ -1,4 +1,4 @@
-StockZap
+StockZap:
 
 Sistema web para gerenciamento e controle de estoque, desenvolvido como projeto acadêmico.
 
