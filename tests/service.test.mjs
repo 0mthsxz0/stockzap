@@ -53,3 +53,13 @@ test('solicitação de privacidade devolve protocolo sem executar exclusão',asy
 test('descrição excessiva e tipo inválido de privacidade são rejeitados',async()=>{
  for(const body of [{kind:'deletion',details:'a'.repeat(1001)},{kind:'grant-admin',details:''}]){const f=fixture();await assert.rejects(f.service.run('privacy-request','POST','Bearer valid',body),{status:400});}
 });
+
+test('questionário é salvo na empresa autenticada com revisão e permissões administrativas',async()=>{
+ const payload={version:1,completed:false,answers:{operacao:'fixo'}};
+ const body={companyId:company,revision:1,action:'onboarding.save',payload};
+ const f=fixture();const result=await f.service.run('action','POST','Bearer valid',body);
+ assert.deepEqual(result.state.onboarding,payload);assert.equal(result.state.revision,2);
+ const saved=f.calls.find(call=>call.path.endsWith('stockzap_save_state'));assert.equal(saved.body.p_company,company);assert.equal(saved.body.p_actor,user.id);assert.deepEqual(saved.body.p_state.onboarding,payload);
+ for(const role of ['operator','viewer'])await assert.rejects(fixture({role}).service.run('action','POST','Bearer valid',body),{status:403});
+ await assert.rejects(fixture().service.run('action','POST','Bearer valid',{...body,revision:0}),{status:409});
+});
