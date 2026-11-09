@@ -3,6 +3,7 @@
   const A=window.StockZapAuth,form=document.querySelector('[data-auth-form]'),message=document.querySelector('[data-auth-message]');
   const show=(text,error=false)=>{message.textContent=text;message.hidden=false;message.classList.toggle('error',error);message.setAttribute('role',error?'alert':'status');};
   const site=window.StockZapSite,callback=flow=>site.url('auth/callback.html')+(flow?'?flow='+flow:'');
+  if(document.body.dataset.page!=='callback')site.arrive?.();
   document.querySelector('[data-toggle-password]')?.addEventListener('click',event=>{
     const input=document.getElementById('senha'),visible=input.type==='password';input.type=visible?'text':'password';event.currentTarget.textContent=visible?'Ocultar':'Mostrar';event.currentTarget.setAttribute('aria-pressed',String(visible));
   });
@@ -43,14 +44,14 @@
           throw error;
         }
         memory={errors:0,until:0};saveAttempts();
-        button.textContent='Abrindo seu espaço…';site.loading('Login confirmado. Abrindo seu espaço…');await A.user();form.reset();navigating=true;location.replace(site.url('app.html'));
+        button.textContent='Abrindo seu espaço…';site.loading('Login confirmado. Abrindo seu espaço…');await A.user();form.reset();navigating=true;site.handoff?.();location.replace(site.url('app.html'));
       }else if(kind==='cadastro'){
         if(values.senha!==values.confirmar)throw new Error('As senhas precisam ser iguais.');
         if(values.senha.length<6||values.senha.length>128)throw new Error('Use uma senha entre 6 e 128 caracteres.');
         const {data,error}=await c.auth.signUp({email:values.email.trim(),password:values.senha,options:{emailRedirectTo:callback(),data:{nome:values.nome.trim(),empresa:values.empresa.trim(),terms_version:A.version}}});
         if(error)throw error;
         form.reset();
-        if(data.session){site.loading('Conta criada. Abrindo seu espaço…');navigating=true;location.replace(site.url('app.html'));}
+        if(data.session){site.loading('Conta criada. Abrindo seu espaço…');navigating=true;site.handoff?.();location.replace(site.url('app.html'));}
         else show('Se o endereço puder receber um cadastro, você receberá um e-mail de confirmação. Confira também o spam e depois entre na sua conta.');
       }else if(kind==='recuperar'){
         const {error}=await c.auth.resetPasswordForEmail(values.email.trim(),{redirectTo:callback('recovery')});if(error)throw error;
@@ -68,11 +69,12 @@
   });
   if(document.body.dataset.page==='callback'){
     (async()=>{
+      site.loading('Confirmando seu acesso…');
       try{
         const recovery=new URLSearchParams(location.search).get('flow')==='recovery';
         await A.user();history.replaceState(null,'',location.pathname);
-        location.replace(site.url(recovery?'redefinir-senha.html':'app.html'));
-      }catch(error){history.replaceState(null,'',location.pathname);show(error.status===503?A.authMessage(error):'O link expirou ou foi aberto em outro navegador. Solicite um novo link e abra no navegador em que iniciou o processo.',true);}
+        site.handoff?.();location.replace(site.url(recovery?'redefinir-senha.html':'app.html'));
+      }catch(error){history.replaceState(null,'',location.pathname);show(error.status===503?A.authMessage(error):'O link expirou ou foi aberto em outro navegador. Solicite um novo link e abra no navegador em que iniciou o processo.',true);site.loaded();}
     })();
   }
 })();

@@ -20,11 +20,12 @@
   function loadLocal(){state=window.SZDemo.seed();}
   function consentScreen(){
     app.setAttribute?.('aria-busy','false');
-    app.innerHTML=`<main class="error-page"><section class="legal-gate"><h1>Seu espaço está quase pronto.</h1><p>Antes de continuar, leia as informações sobre a sua conta.</p><form id="legal-form"><label><input type="checkbox" required> Li e aceito os <a href="${e(siteUrl('termos.html'))}" target="_blank" rel="noopener">Termos de uso</a> e estou ciente da <a href="${e(siteUrl('privacidade.html'))}" target="_blank" rel="noopener">Política de privacidade</a>.</label><div class="form-error" hidden></div><button class="btn btn-primary" type="submit">Continuar para meu negócio</button></form><button class="btn btn-secondary" data-act="logout">Sair</button></section></main>`;
+    app.innerHTML=`<main class="error-page"><section class="legal-gate"><h1>Seu espaço está quase pronto.</h1><p>Antes de continuar, leia as informações sobre a sua conta.</p><form id="legal-form"><label><input type="checkbox" required> Li e aceito os <a href="${e(siteUrl('termos.html'))}" target="_blank" rel="noopener">Termos de uso</a> e estou ciente da <a href="${e(siteUrl('privacidade.html'))}" target="_blank" rel="noopener">Política de privacidade</a>.</label><div class="form-error" hidden></div><button class="btn btn-primary" type="submit">Continuar para meu negócio</button></form><button class="btn btn-secondary" data-act="logout">Sair</button></section></main>`;S?.loaded?.();
   }
   function loading(message){
+    S?.loading?.(message);
     app.setAttribute?.('aria-busy','true');
-    app.innerHTML=`<main class="loading-screen"><section class="loading-content" role="status" aria-live="polite"><img class="logo" src="imagens/StockZap_logo.svg" alt="StockZap"><span class="spinner" aria-hidden="true"></span><h1>Preparando seu negócio</h1><p>${e(message)}</p><small>O primeiro acesso pode levar alguns instantes. Você será levado ao painel assim que os dados estiverem prontos.</small></section></main>`;
+    app.innerHTML=`<main class="loading-screen"><section class="loading-content" role="status" aria-live="polite"><img class="logo" src="imagens/StockZap_logo.svg" alt="StockZap"><span class="loading-bolt" aria-hidden="true"></span><h1>Preparando seu negócio</h1><p>${e(message)}</p><small>O primeiro acesso pode levar alguns instantes. Você será levado ao painel assim que os dados estiverem prontos.</small></section></main>`;
   }
   async function init(){
     try{
@@ -48,12 +49,12 @@
       document.body.dataset.mode=mode;document.body.dataset.role=role;
       U.applyTheme(theme);route=readRoute();
       if(!demo&&['owner','admin'].includes(role)&&!O.complete(state.onboarding)){startOnboarding();return;}
-      render();app.setAttribute?.('aria-busy','false');
+      render();app.setAttribute?.('aria-busy','false');S?.loaded?.();
       if(demo)toast('Demonstração com dados fictícios. As alterações são temporárias.');
     }catch(error){
       app.setAttribute?.('aria-busy','false');
-      if(error.status===401){app.replaceChildren();location.replace(siteUrl('login.html'));return;}
-      app.innerHTML=`<main class="error-page"><section><h1>Não foi possível abrir seu espaço</h1><p>${e(error.message)}</p><button class="btn btn-primary" data-act="reload">Tentar novamente</button><a class="btn btn-secondary" href="${e(siteUrl(''))}">Voltar ao início</a></section></main>`;
+      if(error.status===401){S?.loaded?.({immediate:true});app.replaceChildren();location.replace(siteUrl('login.html'));return;}
+      app.innerHTML=`<main class="error-page"><section><h1>Não foi possível abrir seu espaço</h1><p>${e(error.message)}</p><button class="btn btn-primary" data-act="reload">Tentar novamente</button><a class="btn btn-secondary" href="${e(siteUrl(''))}">Voltar ao início</a></section></main>`;S?.loaded?.();
     }
   }
   function startOnboarding(){
@@ -70,7 +71,7 @@
     app.setAttribute?.('aria-busy','false');chatRoot.innerHTML='';modalRoot.innerHTML='';
     app.innerHTML=`<main class="questionnaire-page"><section class="card questionnaire-card" aria-labelledby="question-title"><img class="logo" src="imagens/StockZap_logo.svg" alt="StockZap"><p class="eyebrow">CONHECENDO SEU NEGÓCIO</p><p class="questionnaire-step" role="status">Etapa ${onboardingStep+1} de ${flow.length} · ${e(state.company.name)}</p><progress value="${onboardingStep+1}" max="${flow.length}" aria-label="Progresso do questionário"></progress><form id="onboarding-form"><fieldset><legend id="question-title" tabindex="-1">${e(q.titulo)}</legend><p>${e(q.descricao)}</p><div class="questionnaire-options">${q.opcoes.map(option=>`<label class="questionnaire-option"><input type="${q.tipo==='single'?'radio':'checkbox'}" name="answer" ${q.tipo==='rank'?'class="priority-input"':''} value="${e(option.id)}" ${selected.includes(option.id)?'checked':''} ${q.tipo==='single'?'required':''}>${q.tipo==='rank'?`<span class="priority-number" data-priority-number="${e(option.id)}" aria-hidden="true">${selected.includes(option.id)?selected.indexOf(option.id)+1:''}</span>`:''}<span><strong>${e(option.titulo)}</strong><small>${e(option.descricao)}</small></span></label>`).join('')}</div>${q.tipo==='rank'?'<p data-priority-status role="status" class="section-note"></p>':''}</fieldset><p class="section-note">Suas respostas são salvas ao continuar. Você poderá retomá-las e revisá-las no perfil da empresa.</p><div class="form-error" role="alert" hidden></div><div class="form-actions">${onboardingStep?'<button class="btn btn-secondary" type="button" data-act="onboarding-back">Voltar</button>':''}<button class="btn btn-primary" type="submit">${onboardingStep===flow.length-1?'Concluir e abrir perfil':'Salvar e continuar'}</button></div></form><button class="btn btn-ghost" data-act="logout">Sair e continuar depois</button></section></main>`;
     if(q.tipo==='rank')updatePriorityNumbers();
-    app.querySelector?.('#question-title')?.focus();
+    S?.loaded?.();app.querySelector?.('#question-title')?.focus();
   }
   function updatePriorityNumbers(){
     const order=onboardingAnswers.prioridade||[];

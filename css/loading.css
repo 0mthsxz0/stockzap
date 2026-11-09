@@ -1,0 +1,28 @@
+/* Shared lightning curtain. Animate only transform and opacity, once per load. */
+:root{--zap-strike-duration:560ms;--zap-reveal-duration:650ms;--zap-ease:cubic-bezier(.22,1,.36,1)}
+.zap-transition{position:fixed;inset:0;z-index:10000;isolation:isolate;overflow:hidden;color:#0b3049;outline:none}
+.zap-panel{position:absolute;top:0;bottom:0;width:calc(50% + 1px);background:#f5f9fb;will-change:transform}
+.zap-panel-left{left:0}.zap-panel-right{right:0}
+.zap-seam{position:absolute;left:calc(50% - 1px);top:0;bottom:0;width:2px;background:linear-gradient(transparent,#00b969 28%,#7effac 50%,#00b969 72%,transparent);opacity:0;transform-origin:50% 50%;animation:zap-crack 240ms 350ms var(--zap-ease) forwards}
+.zap-bolt{position:absolute;left:50%;top:50%;width:76px;height:160px;transform:translate(-50%,-50%);filter:drop-shadow(0 0 18px #00b96938);animation:zap-strike var(--zap-strike-duration) var(--zap-ease) both}
+.zap-symbol{display:block;width:100%;height:100%;background:#00b969;clip-path:polygon(57% 0,4% 55%,41% 55%,26% 100%,96% 36%,58% 36%,75% 0)}
+.loading-bolt{display:block;width:36px;height:72px;margin:24px auto;background:#00b969;clip-path:polygon(57% 0,4% 55%,41% 55%,26% 100%,96% 36%,58% 36%,75% 0)}
+.zap-loading-copy{position:absolute;top:calc(50% + 108px);left:50%;transform:translateX(-50%);width:min(460px,calc(100% - 48px));text-align:center;background:#f5f9fb;padding:8px 0}
+.zap-loading-copy h2{font-size:clamp(23px,4vw,30px);font-weight:600;letter-spacing:-.7px;line-height:1.25;margin:0 0 16px}
+.zap-loading-copy p{font-size:16px;line-height:1.6;margin:0 0 14px}.zap-loading-copy small{display:block;font-size:13px;line-height:1.6;color:#567080}
+.zap-arrived .zap-bolt{animation:none}.zap-arrived .zap-seam{animation:none;opacity:1}
+.zap-transition.is-opening .zap-panel-left{animation:zap-open-left var(--zap-reveal-duration) var(--zap-ease) both}
+.zap-transition.is-opening .zap-panel-right{animation:zap-open-right var(--zap-reveal-duration) var(--zap-ease) both}
+.zap-transition.is-opening .zap-bolt,.zap-transition.is-opening .zap-seam,.zap-transition.is-opening .zap-loading-copy{animation:zap-fade 180ms ease-out both}
+@keyframes zap-strike{0%{transform:translate(-50%,-130vh);opacity:0}25%{opacity:1}100%{transform:translate(-50%,-50%);opacity:1}}
+@keyframes zap-crack{from{transform:scaleY(0);opacity:0}to{transform:scaleY(1);opacity:1}}
+@keyframes zap-open-left{to{transform:translateX(-102%)}}
+@keyframes zap-open-right{to{transform:translateX(102%)}}
+@keyframes zap-fade{to{opacity:0}}
+@media(max-height:500px){.zap-bolt{top:30%;height:100px;width:48px}.zap-loading-copy{top:calc(30% + 70px)}.zap-loading-copy small{display:none}}
+@media(prefers-reduced-motion:reduce){
+ .zap-transition .zap-bolt,.zap-transition .zap-seam{animation:none;opacity:1}
+ .zap-transition .zap-panel{animation:none!important;transform:none!important}
+ .zap-transition.is-opening{animation:zap-fade 150ms linear both}
+ .zap-transition.is-opening .zap-bolt,.zap-transition.is-opening .zap-seam,.zap-transition.is-opening .zap-loading-copy{animation:none}
+}

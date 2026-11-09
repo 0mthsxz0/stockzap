@@ -1,3 +1,4 @@
+@import url('loading.css');
 @import url('fonts.css');
 @import url('tokens.css');
 :root{--ink:var(--brand-navy);--muted:var(--brand-muted);--green:var(--brand-green);--lime:var(--brand-lime);--mint:var(--brand-mint);--line:var(--brand-border);--cream:var(--brand-canvas);--navy:var(--brand-navy);--radius:22px;color-scheme:light;font-family:'StockZap Sans',Arial,sans-serif;color:var(--ink);background:var(--cream);font-synthesis:none;scroll-behavior:smooth;scroll-padding-top:110px}
@@ -14,7 +15,6 @@
 .demo-stage{scroll-margin-top:100px}
 
 
-.connection-loading{position:fixed;inset:0;z-index:200;background:var(--cream,#f7fafc);display:grid;place-items:center;padding:24px}.connection-loading-card{max-width:460px;text-align:center;color:var(--ink,#092f4a)}.connection-loading-card img{margin:0 auto 28px}.connection-loading-card h2{font-size:28px;letter-spacing:-.7px;line-height:1.25;margin:24px 0 14px}.connection-loading-card p{font-size:18px;line-height:1.7;margin:0 0 12px}.connection-loading-card small{font-size:15px;line-height:1.7;color:var(--muted,#5c7180);display:block}.connection-spinner{display:block;width:36px;height:36px;margin:auto;border:3px solid #cee6da;border-top-color:var(--green,#16865e);border-radius:50%;animation:connection-spin 1s linear infinite}@keyframes connection-spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.connection-spinner{animation:none}}
 
 /* Identidade do provedor e separação das opções de acesso. */
 .auth-divider{display:flex;align-items:center;gap:16px;margin:24px 0;color:#596775;font-size:13px}

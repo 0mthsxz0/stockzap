@@ -101,3 +101,7 @@ O cartão da empresa na barra lateral abre `app.html#empresa`, com os dados cada
 Validação reproduzível: `npm test`, `npm run build`, `npm run check` e `npm run test:onboarding`. Para usar Chromium instalado no Linux, execute `CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:onboarding`. O teste de navegador simula autenticação e API, sem criar contas ou alterar registros reais.
 
 A pergunta final permite ordenar prioridades por seleção: a primeira opção marcada recebe 1, a segunda 2, e assim por diante. Desmarcar reajusta a numeração; marcar novamente coloca a opção no fim. A ordem é salva no questionário e aparece numerada no perfil. Respostas antigas com uma única prioridade são preservadas como prioridade 1.
+
+
+### Carregamento com raio
+Login, cadastro, confirmação de acesso e abertura do aplicativo usam a cortina de raio verde: ele cai uma vez, espera os dados e abre as duas metades da tela para revelar o conteúdo pronto ou uma mensagem de erro. O retorno entre páginas evita repetir a queda. A preferência de movimento reduzido troca os deslocamentos por um fade curto. A transição não depende de imagens externas ou de bibliotecas de animação. Verifique com `npm run test:loading` (ou `CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:loading`).
