@@ -15,3 +15,12 @@
 
 
 .connection-loading{position:fixed;inset:0;z-index:200;background:var(--cream,#f7fafc);display:grid;place-items:center;padding:24px}.connection-loading-card{max-width:460px;text-align:center;color:var(--ink,#092f4a)}.connection-loading-card img{margin:0 auto 28px}.connection-loading-card h2{font-size:28px;letter-spacing:-.7px;line-height:1.25;margin:24px 0 14px}.connection-loading-card p{font-size:18px;line-height:1.7;margin:0 0 12px}.connection-loading-card small{font-size:15px;line-height:1.7;color:var(--muted,#5c7180);display:block}.connection-spinner{display:block;width:36px;height:36px;margin:auto;border:3px solid #cee6da;border-top-color:var(--green,#16865e);border-radius:50%;animation:connection-spin 1s linear infinite}@keyframes connection-spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.connection-spinner{animation:none}}
+
+/* Identidade do provedor e separação das opções de acesso. */
+.auth-divider{display:flex;align-items:center;gap:16px;margin:24px 0;color:#596775;font-size:13px}
+.auth-divider::before,.auth-divider::after{content:"";height:1px;flex:1;background:#d6dce1}
+.auth-box .google-login{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:44px;padding:12px 16px;background:#fff;color:#1f1f1f;border:1px solid #747775;border-radius:6px;box-shadow:none;font-size:14px;font-weight:500;letter-spacing:.25px}
+.auth-box .google-login img{width:20px;height:20px;flex:none}
+.auth-box .google-login:hover{background:#f2f5fa;border-color:#424747}
+.auth-box .google-login:active{background:#e8eef7}
+.auth-box .google-login:disabled{background:#f5f5f5;cursor:wait}
