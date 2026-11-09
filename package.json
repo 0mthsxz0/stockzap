@@ -13,6 +13,7 @@
     "sync-core": "node scripts/sync-core.cjs",
     "test": "node --test tests/*.test.cjs tests/*.test.mjs",
     "check": "node scripts/check.cjs",
+    "test:404": "node tests/not-found.e2e.cjs",
     "test:loading": "node tests/loading.e2e.cjs",
     "test:onboarding": "node tests/onboarding.e2e.cjs",
     "test:e2e": "node tests/demo.e2e.cjs",

@@ -14,7 +14,8 @@ function serve({mount='/',protectedPreview=false}={}){
   if(relative==='/')relative='/index.html';
   for(const rule of config.headers||[])if(new RegExp('^'+rule.source+'$').test(relative))for(const h of rule.headers)res.setHeader(h.key,h.value);
   const base=path.join(root,'dist'),file=path.resolve(base,'.'+relative);
-  if(!file.startsWith(base+path.sep)||!fs.existsSync(file)||!fs.statSync(file).isFile()){res.writeHead(404);return res.end('Not found');}
+  if(!file.startsWith(base+path.sep)){res.writeHead(403);return res.end();}
+  if(!fs.existsSync(file)||!fs.statSync(file).isFile()){res.writeHead(404,{'Content-Type':'text/html; charset=utf-8'});return res.end(fs.readFileSync(path.join(base,'404.html')));}
   res.setHeader('Content-Type',types[path.extname(file)]||'application/octet-stream');res.end(fs.readFileSync(file));
  });
  return new Promise(resolve=>server.listen(0,'0.0.0.0',()=>resolve({server,blocked,requests,url:'http://localhost:'+server.address().port,mount,close:()=>new Promise(r=>server.close(r))})));

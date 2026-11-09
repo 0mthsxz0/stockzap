@@ -105,3 +105,8 @@ A pergunta final permite ordenar prioridades por seleção: a primeira opção m
 
 ### Carregamento com raio
 Login, cadastro, confirmação de acesso e abertura do aplicativo usam a cortina de raio verde: ele cai uma vez, espera os dados e abre as duas metades da tela para revelar o conteúdo pronto ou uma mensagem de erro. O retorno entre páginas evita repetir a queda. A preferência de movimento reduzido troca os deslocamentos por um fade curto. A transição não depende de imagens externas ou de bibliotecas de animação. Verifique com `npm run test:loading` (ou `CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:loading`).
+
+
+O raio do carregamento ocupa toda a altura da tela. O HTML inicial de `app.html` já contém a cortina, que é reaproveitada pelo controlador antes de carregar a sessão; não há uma segunda tela de carregamento por trás. O teste `test:loading` atrasa o SDK para conferir esse comportamento.
+
+A página `404.html` tem identidade visual própria, links para início/conta e funciona sem JavaScript. No Vercel, o arquivo na raiz de `dist/` é usado como página de erro; o servidor local também o devolve com status 404. Os assets e links da página usam caminhos da raiz para funcionar em endereços inexistentes com vários níveis. Em hospedagens por subpasta, configure o prefixo da página de erro conforme o servidor. Verifique com `npm run test:404`.

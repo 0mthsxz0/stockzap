@@ -25,7 +25,7 @@
   function loading(message){
     S?.loading?.(message);
     app.setAttribute?.('aria-busy','true');
-    app.innerHTML=`<main class="loading-screen"><section class="loading-content" role="status" aria-live="polite"><img class="logo" src="imagens/StockZap_logo.svg" alt="StockZap"><span class="loading-bolt" aria-hidden="true"></span><h1>Preparando seu negócio</h1><p>${e(message)}</p><small>O primeiro acesso pode levar alguns instantes. Você será levado ao painel assim que os dados estiverem prontos.</small></section></main>`;
+
   }
   async function init(){
     try{
