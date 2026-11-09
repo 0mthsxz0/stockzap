@@ -23,3 +23,8 @@ body{font-family:'StockZap Sans',Arial,sans-serif}.app-skip{position:fixed;top:-
 .questionnaire-option:focus-within{outline:3px solid var(--green,#118664);outline-offset:2px}.questionnaire-card .form-actions{flex-wrap:wrap}.questionnaire-card>.btn{margin-top:24px}
 .company-profile{padding:28px;margin-bottom:24px}.company-profile .card-head{padding:0;gap:16px;flex-wrap:wrap}.company-profile h2{font-size:20px}.company-profile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin:24px 0}.company-profile-grid div{min-width:0}.company-profile-grid dt{font-size:12px;color:var(--muted,#587080);margin-bottom:8px}.company-profile-grid dd{margin:0;font-size:15px;line-height:1.5;overflow-wrap:anywhere}
 @media(max-width:600px){.questionnaire-page{padding:16px}.questionnaire-card{padding:22px}.questionnaire-options,.company-profile-grid{grid-template-columns:1fr}.company-profile{padding:22px}}
+
+.questionnaire-option:has(.priority-input){position:relative}
+.questionnaire-option .priority-input{position:absolute;width:1px;height:1px;opacity:0;margin:0}
+.priority-number{display:grid;place-items:center;flex:none;width:26px;height:26px;border:1px solid var(--muted,#587080);border-radius:50%;font-size:14px;font-weight:700;line-height:1}
+.questionnaire-option:has(.priority-input:checked) .priority-number{background:var(--green,#118664);border-color:var(--green,#118664);color:#fff}

@@ -412,8 +412,8 @@
   },
   "prioridade": {
     "titulo": "O que mais precisa melhorar hoje?",
-    "descricao": "Escolha o principal problema que você gostaria de resolver.",
-    "tipo": "single",
+    "descricao": "Marque as opções na ordem de prioridade: primeiro a mais importante, depois a segunda e assim por diante. Para mudar a ordem, desmarque e selecione novamente.",
+    "tipo": "rank",
     "opcoes": [
       {
         "id": "estoque",
@@ -467,14 +467,15 @@
     const result={};
     for(const key of flow(input)){
       const q=questions[key],value=input[key],allowed=q.opcoes.map(o=>o.id);
-      if(q.tipo==='multi'){
-        if(Array.isArray(value)){const selected=[...new Set(value.filter(v=>allowed.includes(v)))];if(selected.length)result[key]=selected;}
+      if(q.tipo==='multi'||q.tipo==='rank'){
+        const list=q.tipo==='rank'&&typeof value==='string'?[value]:value;
+        if(Array.isArray(list)){const selected=[...new Set(list.filter(v=>allowed.includes(v)))];if(selected.length)result[key]=selected;}
       }else if(typeof value==='string'&&allowed.includes(value))result[key]=value;
     }
     return result;
   }
   function complete(data){return data?.version===1&&data.completed===true&&flow(data.answers).every(key=>Boolean(clean(data.answers)[key]));}
-  function rows(input){const answers=clean(input);return flow(answers).map(key=>({key,title:questions[key].titulo,answer:[answers[key]].flat().map(value=>questions[key].opcoes.find(o=>o.id===value)?.titulo).filter(Boolean).join(' · ')||'Não respondido'}));}
+  function rows(input){const answers=clean(input);return flow(answers).map(key=>({key,title:questions[key].titulo,answer:[answers[key]].flat().map((value,index)=>{const title=questions[key].opcoes.find(o=>o.id===value)?.titulo;return title&&questions[key].tipo==='rank'?(index+1)+'. '+title:title;}).filter(Boolean).join(' · ')||'Não respondido'}));}
   const api={questions,flow,clean,complete,rows};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
   else root.SZOnboarding=api;

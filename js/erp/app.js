@@ -68,8 +68,20 @@
     const flow=O.flow(onboardingAnswers),key=flow[onboardingStep],q=O.questions[key];
     const selected=[onboardingAnswers[key]].flat();
     app.setAttribute?.('aria-busy','false');chatRoot.innerHTML='';modalRoot.innerHTML='';
-    app.innerHTML=`<main class="questionnaire-page"><section class="card questionnaire-card" aria-labelledby="question-title"><img class="logo" src="imagens/StockZap_logo.svg" alt="StockZap"><p class="eyebrow">CONHECENDO SEU NEGÓCIO</p><p class="questionnaire-step" role="status">Etapa ${onboardingStep+1} de ${flow.length} · ${e(state.company.name)}</p><progress value="${onboardingStep+1}" max="${flow.length}" aria-label="Progresso do questionário"></progress><form id="onboarding-form"><fieldset><legend id="question-title" tabindex="-1">${e(q.titulo)}</legend><p>${e(q.descricao)}</p><div class="questionnaire-options">${q.opcoes.map(option=>`<label class="questionnaire-option"><input type="${q.tipo==='multi'?'checkbox':'radio'}" name="answer" value="${e(option.id)}" ${selected.includes(option.id)?'checked':''} ${q.tipo==='single'?'required':''}><span><strong>${e(option.titulo)}</strong><small>${e(option.descricao)}</small></span></label>`).join('')}</div></fieldset><p class="section-note">Suas respostas são salvas ao continuar. Você poderá retomá-las e revisá-las no perfil da empresa.</p><div class="form-error" role="alert" hidden></div><div class="form-actions">${onboardingStep?'<button class="btn btn-secondary" type="button" data-act="onboarding-back">Voltar</button>':''}<button class="btn btn-primary" type="submit">${onboardingStep===flow.length-1?'Concluir e abrir perfil':'Salvar e continuar'}</button></div></form><button class="btn btn-ghost" data-act="logout">Sair e continuar depois</button></section></main>`;
+    app.innerHTML=`<main class="questionnaire-page"><section class="card questionnaire-card" aria-labelledby="question-title"><img class="logo" src="imagens/StockZap_logo.svg" alt="StockZap"><p class="eyebrow">CONHECENDO SEU NEGÓCIO</p><p class="questionnaire-step" role="status">Etapa ${onboardingStep+1} de ${flow.length} · ${e(state.company.name)}</p><progress value="${onboardingStep+1}" max="${flow.length}" aria-label="Progresso do questionário"></progress><form id="onboarding-form"><fieldset><legend id="question-title" tabindex="-1">${e(q.titulo)}</legend><p>${e(q.descricao)}</p><div class="questionnaire-options">${q.opcoes.map(option=>`<label class="questionnaire-option"><input type="${q.tipo==='single'?'radio':'checkbox'}" name="answer" ${q.tipo==='rank'?'class="priority-input"':''} value="${e(option.id)}" ${selected.includes(option.id)?'checked':''} ${q.tipo==='single'?'required':''}>${q.tipo==='rank'?`<span class="priority-number" data-priority-number="${e(option.id)}" aria-hidden="true">${selected.includes(option.id)?selected.indexOf(option.id)+1:''}</span>`:''}<span><strong>${e(option.titulo)}</strong><small>${e(option.descricao)}</small></span></label>`).join('')}</div>${q.tipo==='rank'?'<p data-priority-status role="status" class="section-note"></p>':''}</fieldset><p class="section-note">Suas respostas são salvas ao continuar. Você poderá retomá-las e revisá-las no perfil da empresa.</p><div class="form-error" role="alert" hidden></div><div class="form-actions">${onboardingStep?'<button class="btn btn-secondary" type="button" data-act="onboarding-back">Voltar</button>':''}<button class="btn btn-primary" type="submit">${onboardingStep===flow.length-1?'Concluir e abrir perfil':'Salvar e continuar'}</button></div></form><button class="btn btn-ghost" data-act="logout">Sair e continuar depois</button></section></main>`;
+    if(q.tipo==='rank')updatePriorityNumbers();
     app.querySelector?.('#question-title')?.focus();
+  }
+  function updatePriorityNumbers(){
+    const order=onboardingAnswers.prioridade||[];
+    document.querySelectorAll('#onboarding-form .priority-input').forEach(input=>{
+      const position=order.indexOf(input.value),number=input.closest('label').querySelector('[data-priority-number]');
+      number.textContent=position<0?'':String(position+1);
+      const title=O.questions.prioridade.opcoes.find(option=>option.id===input.value).titulo;
+      input.setAttribute('aria-label',title+(position<0?'':', prioridade '+(position+1)));
+    });
+    const status=document.querySelector('[data-priority-status]');
+    if(status)status.textContent=order.length?order.length+' prioridade(s) selecionada(s). A primeira é a mais importante.':'Selecione pelo menos uma prioridade.';
   }
   function publishDemo(type='stockzap:demo-ready',extra={}){
     if(!demo||window.parent===window||!state)return;
@@ -312,6 +324,11 @@
   });
   document.addEventListener('change',event=>{
     const el=event.target;
+    if(onboardingActive&&el.matches('.priority-input')){
+      const order=(onboardingAnswers.prioridade||[]).filter(value=>value!==el.value);
+      if(el.checked)order.push(el.value);
+      onboardingAnswers.prioridade=order;updatePriorityNumbers();return;
+    }
     if(el.dataset.filter){filters[el.dataset.filter]=el.value;page=1;renderContent();}
     if(el.hasAttribute('data-replenishment-target')){
       const value=Number(el.value),id=el.dataset.replenishmentTarget;
@@ -331,9 +348,9 @@
       if(form.id==='onboarding-form'){
         if(!onboardingActive||saving)return;
         const flow=O.flow(onboardingAnswers),key=flow[onboardingStep],q=O.questions[key];
-        const answers=new FormData(form).getAll('answer');
+        const answers=q.tipo==='rank'?(onboardingAnswers[key]||[]):new FormData(form).getAll('answer');
         if(!answers.length)throw new Error('Selecione pelo menos uma opção para continuar.');
-        onboardingAnswers=O.clean({...onboardingAnswers,[key]:q.tipo==='multi'?answers:answers[0]});
+        onboardingAnswers=O.clean({...onboardingAnswers,[key]:q.tipo==='single'?answers[0]:answers});
         if(!onboardingAnswers[key])throw new Error('Escolha uma das opções disponíveis.');
         const nextFlow=O.flow(onboardingAnswers),completed=onboardingStep===nextFlow.length-1;
         if(completed&&!O.complete({version:1,completed:true,answers:onboardingAnswers}))throw new Error('Responda todas as perguntas antes de concluir.');

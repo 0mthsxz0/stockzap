@@ -13,3 +13,12 @@ test('normaliza seleção múltipla e não exibe texto arbitrário no perfil',()
  const a={...answers(),canais:['site','site','<script>'],segmento:'<img>',extra:'injetado'};const cleaned=O.clean(a);assert.deepEqual(cleaned.canais,['site']);assert.equal(cleaned.extra,undefined);assert.equal(cleaned.segmento,undefined);
  assert.ok(O.rows(a).some(row=>row.key==='segmento'&&row.answer==='Não respondido'));assert.ok(O.rows(a).some(row=>row.key==='canais'&&row.answer==='Site'));
 });
+
+test('prioridades preservam a ordem escolhida e respostas antigas continuam válidas',()=>{
+ const ranked=O.clean({...answers(),prioridade:['financeiro','estoque','vendas','financeiro','invalido']});
+ assert.deepEqual(ranked.prioridade,['financeiro','estoque','vendas']);
+ assert.equal(O.rows(ranked).find(row=>row.key==='prioridade').answer,'1. Financeiro · 2. Estoque · 3. Vendas');
+ const legacy={...answers(),prioridade:'financeiro'};
+ assert.deepEqual(O.clean(legacy).prioridade,['financeiro']);assert.equal(O.complete({version:1,completed:true,answers:legacy}),true);
+ assert.equal(O.complete({version:1,completed:true,answers:{...answers(),prioridade:[]}}),false);
+});

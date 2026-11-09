@@ -31,13 +31,23 @@ let browser,host;
  let iterations=0;
  while(await page.locator('#onboarding-form').count()){
   assert.ok(iterations++<14);
-  if(await page.locator('input[type=checkbox]').count()){
+  if(await page.locator('.priority-input').count()){
+   const option=value=>page.locator('.questionnaire-option').filter({has:page.locator('input[value="'+value+'"]')});
+   const badge=value=>page.locator('[data-priority-number="'+value+'"]');
+   await option('financeiro').click();await option('estoque').click();await option('vendas').click();
+   assert.equal(await badge('financeiro').innerText(),'1');assert.equal(await badge('estoque').innerText(),'2');assert.equal(await badge('vendas').innerText(),'3');
+   await option('estoque').click();assert.equal(await badge('vendas').innerText(),'2');assert.equal(await badge('estoque').innerText(),'');
+   await option('estoque').click();assert.equal(await badge('estoque').innerText(),'3');
+   await page.locator('input[value="financeiro"]').focus();await page.keyboard.press('Space');assert.equal(await badge('vendas').innerText(),'1');
+   await page.keyboard.press('Space');assert.equal(await badge('financeiro').innerText(),'3');
+  }else if(await page.locator('input[type=checkbox]').count()){
    const old=saves;await page.locator('#onboarding-form [type=submit]').click();await page.getByRole('alert').filter({hasText:'Selecione pelo menos'}).waitFor();assert.equal(saves,old);
    await page.locator('input[type=checkbox]').first().check();await page.locator('input[type=checkbox]').nth(1).check();
   }else await page.locator('input[type=radio]').first().check();
   await next();
  }
- await page.getByRole('heading',{name:'Perfil da empresa',exact:true}).waitFor();assert.equal(state.onboarding.completed,true);assert.equal(saves,13);assert.equal(state.onboarding.answers.canais.length,2);
+ await page.getByRole('heading',{name:'Perfil da empresa',exact:true}).waitFor();assert.equal(state.onboarding.completed,true);assert.equal(saves,13);assert.equal(state.onboarding.answers.canais.length,2);assert.deepEqual(state.onboarding.answers.prioridade,['vendas','estoque','financeiro']);
+ assert.match(await page.locator('.company-profile').last().innerText(),/1\. Vendas · 2\. Estoque · 3\. Financeiro/);
  assert.match(await page.locator('.company-profile').last().innerText(),/Produção própria/);
  assert.ok(await page.locator('html').evaluate(n=>n.scrollWidth<=innerWidth+1));
  await page.reload();await page.getByRole('heading',{name:'Perfil da empresa',exact:true}).waitFor();assert.equal(await page.locator('#onboarding-form').count(),0);
