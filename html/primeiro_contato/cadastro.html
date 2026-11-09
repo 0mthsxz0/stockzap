@@ -107,6 +107,7 @@
 
 							<input
 								type="password"
+                                minlength="6"
 								id="senha"
 								name="senha"
 								placeholder="Crie uma senha"
@@ -115,7 +116,8 @@
 							/>
 						</div>
 
-						<button type="submit" class="botao-login">
+						<div class="campo-formulario"><label for="confirmar_senha">Confirmar senha</label><input type="password" id="confirmar_senha" name="confirmar_senha" autocomplete="new-password" minlength="6" required /></div>
+<button type="submit" class="botao-login">
 							Criar conta
 						</button>
 					</form>

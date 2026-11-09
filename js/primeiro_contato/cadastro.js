@@ -3,7 +3,14 @@ const formCadastro = document.getElementById("formCadastro");
 formCadastro.addEventListener("submit", async (evento) => {
 	evento.preventDefault();
 
-	const nome = document.getElementById("nome_user").value.trim();
+	const senhaCampo = document.getElementById("senha");
+ const confirmar = document.getElementById("confirmar_senha");
+ if (senhaCampo.value.length < 6 || senhaCampo.value !== confirmar.value) {
+   alert("Use pelo menos 6 caracteres e confirme a mesma senha.");
+   confirmar.focus();
+   return;
+ }
+ const nome = document.getElementById("nome_user").value.trim();
 	const empresa = document.getElementById("nome_empresa").value.trim();
 	const email = document.getElementById("email").value.trim();
 	const senha = document.getElementById("senha").value;
