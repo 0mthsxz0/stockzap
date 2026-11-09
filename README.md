@@ -52,7 +52,7 @@ No painel Supabase → Authentication → URL Configuration, configure a Site UR
 - `https://stockzap.vercel.app/auth/callback.html?flow=recovery`
 - Os mesmos caminhos em `http://localhost:3000`, se for testar localmente.
 
-Mantenha a confirmação de e-mail, defina a força mínima da senha também no Supabase Auth, revise limites e CAPTCHA, configure SMTP de produção e habilite proteção contra senhas comprometidas quando disponível no plano. A validação de 12 caracteres no formulário não substitui essas configurações do provedor.
+Mantenha a confirmação de e-mail, defina a força mínima da senha também no Supabase Auth, revise limites e CAPTCHA, configure SMTP de produção e habilite proteção contra senhas comprometidas quando disponível no plano. A validação de 6 caracteres no formulário não substitui essas configurações do provedor.
 
 ## Limites importantes
 
@@ -86,3 +86,9 @@ A demo continua em sandbox sem `allow-same-origin` e sem acesso à conta. O cabe
 
 `npm run test:preview` verifica raiz e subpasta em portas variáveis, com a proteção por cookie, e não cria contas reais. Para copiar `dist/` para outra hospedagem, preserve os arquivos e os cabeçalhos de `vercel.json` quando o servidor permitir essa configuração. Cadastre os domínios usados pela conta na API e os retornos de e-mail no Supabase. Nenhum site pode autorizar automaticamente um novo domínio no provedor de autenticação.
 
+
+
+### Login Google e limites de senha
+No Supabase Auth, habilite Google em Sign In / Providers com as credenciais do cliente OAuth. No Google Cloud, autorize o callback HTTPS do projeto Supabase (`https://xvbryihihhzehebchuqc.supabase.co/auth/v1/callback`). Em URL Configuration do Supabase, autorize o endereço `auth/callback.html` dos domínios de produção e previews utilizados, além do callback de recuperação existente. Defina o mínimo de senha no Supabase Auth como 6 para aceitar senhas de 6 caracteres também no servidor. Não coloque o segredo OAuth no frontend.
+
+O formulário interrompe o login por senha neste navegador por 15 minutos após 5 respostas `invalid_credentials`. O contador persiste ao recarregar, é compartilhado pelas abas nas próximas submissões e zera após login válido ou fim da pausa. Falhas de rede e de confirmação de e-mail não contam. Essa proteção local pode ser contornada apagando o armazenamento e não substitui rate limits e CAPTCHA no Supabase Auth. Google e recuperação continuam disponíveis. A recuperação usa o fluxo PKCE já existente.
